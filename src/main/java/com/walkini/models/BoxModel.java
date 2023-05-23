@@ -2,7 +2,7 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
+
  
 
 
@@ -11,43 +11,61 @@ import java.sql.Timestamp;
 public class BoxModel {
     @Id
     @SequenceGenerator(
-allocationSize=1,
-            name="box_id_sequence",
+            allocationSize = 1,
+            name = "box_id_sequence",
             sequenceName = "box_id_sequence")
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "box_id_sequence"
     )
-    @Column(name="id")
+    @Column(name = "id")
     private Integer id;
-    @Column(name="boxName")
+    @Column(name = "boxName")
     private String name;
-    @Column(name="boxDescription")
+    @Column(name = "boxDescription")
     private String description;
-    @Column(name="places")
+    @Column(name = "places")
     private String places;
-    @Column(name="coins")
+    @Column(name = "coins")
     private String coins;
-    @Column(name="boosts")
+    @Column(name = "boosts")
     private String boosts;
-    @Column(name="coupons")
+    @Column(name = "coupons")
     private String coupons;
-    @Column(name="boxCoinPrice")
-    private String coinPrice;
-    @Column(name="boxEmeraldPrice")
-    private String emeraldPrice;
-    @Column(name="buyInEmerald")
-    private boolean buyInEmerald;
-    @Column(name="boxDurationInSeconds")
-    private Long boxDurationInSeconds ;
-    @Column(name="boxAvailableQuantity")
-    private String availableQuantity;
-    @Column(name="boxLeftQuantity")
-    private String leftQuantity;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    @Column(name = "boxCoinPrice")
+    private Double coinPrice;
+    @Column(name = "boxEmeraldPrice")
+    private Double emeraldPrice;
+    @Column(name = "buyInEmerald")
+    private Boolean buyInEmerald;
+    @Column(name = "isActive")
+    private Boolean isActive;
+    @Column(name = "boxAvailableQuantity")
+    private Integer availableQuantity;
+    @Column(name = "boxLeftQuantity")
+    private Integer leftQuantity;
+    private String createdAt;
+    private String modifiedAt;
 
-    public BoxModel(String name) {
+    public BoxModel() {
+    }
+
+    public BoxModel(Integer id, String name, String description, String places, String coins, String boosts, String coupons, Double coinPrice, Double emeraldPrice, Boolean buyInEmerald, Boolean isActive, Integer availableQuantity, Integer leftQuantity, String createdAt, String modifiedAt) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.places = places;
+        this.coins = coins;
+        this.boosts = boosts;
+        this.coupons = coupons;
+        this.coinPrice = coinPrice;
+        this.emeraldPrice = emeraldPrice;
+        this.buyInEmerald = buyInEmerald;
+        this.isActive = isActive;
+        this.availableQuantity = availableQuantity;
+        this.leftQuantity = leftQuantity;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 
     public Integer getId() {
@@ -106,88 +124,67 @@ allocationSize=1,
         this.coupons = coupons;
     }
 
-    public String getCoinPrice() {
+    public Double getCoinPrice() {
         return coinPrice;
     }
 
-    public void setCoinPrice(String coinPrice) {
+    public void setCoinPrice(Double coinPrice) {
         this.coinPrice = coinPrice;
     }
 
-    public String getEmeraldPrice() {
+    public Double getEmeraldPrice() {
         return emeraldPrice;
     }
 
-    public void setEmeraldPrice(String emeraldPrice) {
+    public void setEmeraldPrice(Double emeraldPrice) {
         this.emeraldPrice = emeraldPrice;
     }
 
-    public boolean isBuyInEmerald() {
+    public Boolean getBuyInEmerald() {
         return buyInEmerald;
     }
 
-    public void setBuyInEmerald(boolean buyInEmerald) {
+    public void setBuyInEmerald(Boolean buyInEmerald) {
         this.buyInEmerald = buyInEmerald;
     }
 
-    public Long getBoxDurationInSeconds() {
-        return boxDurationInSeconds;
+    public Boolean getActive() {
+        return isActive;
     }
 
-    public void setBoxDurationInSeconds(Long boxDurationInSeconds) {
-        this.boxDurationInSeconds = boxDurationInSeconds;
+    public void setActive(Boolean active) {
+        isActive = active;
     }
 
-    public String getAvailableQuantity() {
+    public Integer getAvailableQuantity() {
         return availableQuantity;
     }
 
-    public void setAvailableQuantity(String availableQuantity) {
+    public void setAvailableQuantity(Integer availableQuantity) {
         this.availableQuantity = availableQuantity;
     }
 
-    public String getLeftQuantity() {
+    public Integer getLeftQuantity() {
         return leftQuantity;
     }
 
-    public void setLeftQuantity(String leftQuantity) {
+    public void setLeftQuantity(Integer leftQuantity) {
         this.leftQuantity = leftQuantity;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
-        this.modifiedAt = modifiedAt;
-    }
-
-    public BoxModel() {
-    }
-
-    public BoxModel(Integer id, String name, String description, String places, String coins, String boosts, String coupons, String coinPrice, String emeraldPrice, boolean buyInEmerald, Long boxDurationInSeconds, String availableQuantity, String leftQuantity, Timestamp createdAt, Timestamp modifiedAt) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.places = places;
-        this.coins = coins;
-        this.boosts = boosts;
-        this.coupons = coupons;
-        this.coinPrice = coinPrice;
-        this.emeraldPrice = emeraldPrice;
-        this.buyInEmerald = buyInEmerald;
-        this.boxDurationInSeconds = boxDurationInSeconds;
-        this.availableQuantity = availableQuantity;
-        this.leftQuantity = leftQuantity;
-        this.createdAt = createdAt;
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

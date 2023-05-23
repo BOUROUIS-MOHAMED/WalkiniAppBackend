@@ -4,11 +4,8 @@ package com.walkini.controllers;
 import com.walkini.AppConstants;
 import com.walkini.models.*;
 import com.walkini.repositories.NewsRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,55 +14,62 @@ import java.util.Optional;
 @CrossOrigin
 public class NewsController {
     private final NewsRepository repository;
-    private final ProfileController profileController;
 
-    public NewsController(NewsRepository repository, ProfileController profileController) {
+
+    public NewsController(NewsRepository repository) {
         this.repository = repository;
-        this.profileController = profileController;
+
     }
 
 
-    record CreationRequest(String title, String description, String newsImage, String country, String color, String priority, Boolean sponsored, Integer action, Timestamp createdAt, Timestamp modifiedAt) {
-    }
-    record UpdateRequest(Integer id, String title, String description, String newsImage, String country, String color, String priority, Boolean sponsored, Integer action, Timestamp createdAt, Timestamp modifiedAt) {
-    }
-    Response response = new Response();
+    record CreationRequest(String title, String description, String newsImage, String country, String color, String priority, Boolean sponsored, Boolean newsIsInfo, Boolean newsIsFilteredByCountry, Integer action, String createdAt, String modifiedAt) { }
+    record UpdateRequest(Integer id, String title, String description, String newsImage, String country, String color, String priority, Boolean sponsored, Boolean newsIsInfo, Boolean newsIsFilteredByCountry, Integer action, String createdAt, String modifiedAt) { }
+    ResponseModel response = new ResponseModel();
 
+
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<NewsModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
+
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
     @GetMapping("/getAllNews")
     public List<NewsModel> getAllNews() {
         return repository.findAll();
     }
-    @GetMapping("/getNews{newsId}")
-    public Response getNews(@RequestParam String newsId) {
-        int id = Integer.parseInt(newsId);
-
-        if (repository.existsById(id)) {
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("news founded");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setObject(repository.findById(id));
-
-        } else {
-            response.setErrorType(ErrorResponseType.NoDataFound);
-            response.setMessage("news unfounded");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
-        }
-        return response;
-
-
-    }
 
     @PostMapping("/createNews")
-    public Response createNews(@RequestBody CreationRequest request )  {
+    public ResponseModel createNews(@RequestBody CreationRequest request )  {
 
-        ExampleMatcher matching = ExampleMatcher.matching()
-                .withMatcher("title", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<NewsModel> example = Example.<NewsModel>of(new NewsModel(request.title()), matching);
-        boolean exists = repository.exists(example);
-        if(exists){
+       List<NewsModel> newsModelList=repository.findByTitle(request.title());
+        if(newsModelList.isEmpty()){
             NewsModel news = new NewsModel();
+            news.setModifiedAt(request.modifiedAt());
+            news.setNewsIsFilteredByCountry(request.newsIsFilteredByCountry());
+            news.setNewsIsInfo(request.newsIsInfo());
             news.setNewsImage(request.newsImage());
             news.setAction(request.action());
             news.setCreatedAt(request.createdAt());
@@ -80,21 +84,33 @@ public class NewsController {
             //message
             repository.save(news);
             response.setMessage("news Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(news);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("news already exist");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
 
 
     @PutMapping("/updateNews")
-    public Response updateNews(@RequestBody UpdateRequest request) {
+    public ResponseModel updateNews(@RequestBody UpdateRequest request) {
         NewsModel news = new NewsModel();
         Optional<NewsModel> newsModel = repository.findById(request.id());
         if (newsModel.isPresent()){
@@ -111,15 +127,26 @@ public class NewsController {
             //message
             repository.save(news);
             response.setMessage("news information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(true);
             response.setObject(news);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("news unfounded");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }

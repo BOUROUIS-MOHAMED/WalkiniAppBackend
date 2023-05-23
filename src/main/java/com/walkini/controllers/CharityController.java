@@ -4,11 +4,9 @@ package com.walkini.controllers;
 import com.walkini.AppConstants;
 import com.walkini.models.*;
 import com.walkini.repositories.CharityRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import com.walkini.repositories.WaitingCharityManagingListRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,148 +15,382 @@ import java.util.Optional;
 @CrossOrigin
 public class CharityController {
     private final CharityRepository repository;
-    private final ProfileController profileController;
+    private final WaitingCharityManagingListRepository waitingCharityManagingListRepository;
 
-    public CharityController(CharityRepository repository, ProfileController profileController) {
+    public CharityController(CharityRepository repository, WaitingCharityManagingListRepository waitingCharityManagingListRepository) {
         this.repository = repository;
-        this.profileController = profileController;
+        this.waitingCharityManagingListRepository = waitingCharityManagingListRepository;
+
     }
 
 
-    record CreationRequest( String title, String image, String amount, String description, String currentAmount, Timestamp limitTime, Integer owner, Timestamp createdAt)  {
+    record CreationRequest(Integer id, String title, String image, String description, String target, String score,
+                           Boolean inEmerald, String category, String currentAmount, String limitDay, Double latitude,
+                           Double longitude, Integer owner, String createdAt, String modifiedAt) {
     }
-    record UpdateRequest(Integer id, String title, String image, String amount, String description, String currentAmount, Timestamp limitTime, Integer owner, Timestamp modifiedAt )  {
+
+    record UpdateRequest(Integer id, String title, String image, String description, String target, String score,
+                         Boolean inEmerald, String category, String currentAmount, String limitDay, Double latitude,
+                         Double longitude, Integer owner, String createdAt, String modifiedAt) {
     }
-    Response response = new Response();
+
+    ResponseModel response = new ResponseModel();
 
     @GetMapping("/donateToCharity")
-    public Response donateToCharity() {
+    public ResponseModel donateToCharity() {
         return response;
     }
 
+    @GetMapping("/getCharityDemandById/{id}")
+    public ResponseModel getCharityDemandById(@PathVariable Integer id) {
+        Optional<WaitingCharityManagingListModel> model=waitingCharityManagingListRepository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<CharityModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
 
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
 
     @GetMapping("/getAllCharity")
     public List<CharityModel> getAllCharity() {
         return repository.findAll();
     }
-    @GetMapping("/getCharity{charityId}")
-    public Response getCharity(@RequestParam String charityId) {
-        int id = Integer.parseInt(charityId);
 
-        if (repository.existsById(id)) {
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("charity founded");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setObject(repository.findById(id));
+    @GetMapping("/getAllCharityDemand")
+    public List<WaitingCharityManagingListModel> getAllCharityDemand() {
+        return waitingCharityManagingListRepository.findAll();
+    }
+
+
+    //
+    //
+    //
+    //
+    @PostMapping("/acceptAddCharity{id}")
+    public ResponseModel acceptAddCharity(@PathVariable("id") int id) {
+        Optional<WaitingCharityManagingListModel> waitingCharityManagingListModel = waitingCharityManagingListRepository.findById(id);
+        if (waitingCharityManagingListModel.isPresent()) {
+            if (waitingCharityManagingListModel.get().getRequestType() == requestType.add) {
+                List<CharityModel> charityModelList = repository.findByTitle(waitingCharityManagingListModel.get().getTitle());
+                if (charityModelList.isEmpty()) {
+                    CharityModel charity = new CharityModel();
+                    charity.setCreatedAt(waitingCharityManagingListModel.get().getCreatedAt());
+                    charity.setModifiedAt(waitingCharityManagingListModel.get().getModifiedAt());
+                    charity.setTarget(waitingCharityManagingListModel.get().getTarget());
+                    charity.setLongitude(waitingCharityManagingListModel.get().getLongitude());
+                    charity.setLimitDay(waitingCharityManagingListModel.get().getLimitDay());
+                    charity.setLatitude(waitingCharityManagingListModel.get().getLatitude());
+                    charity.setInEmerald(waitingCharityManagingListModel.get().getInEmerald());
+                    charity.setCategory(waitingCharityManagingListModel.get().getCategory());
+                    charity.setImage(waitingCharityManagingListModel.get().getImage());
+                    charity.setDescription(waitingCharityManagingListModel.get().getDescription());
+                    charity.setCurrentAmount(waitingCharityManagingListModel.get().getCurrentAmount());
+                    charity.setTitle(waitingCharityManagingListModel.get().getTitle());
+                    charity.setOwner(waitingCharityManagingListModel.get().getOwner());
+                    charity.setScore(waitingCharityManagingListModel.get().getScore());
+                    repository.save(charity);
+                    waitingCharityManagingListRepository.deleteById(id);
+                    response.setMessage("charity Added Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(charity);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(null);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("charity already exist");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(null);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(null);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+            } else {
+                response.setMessage("the request type is not add ");
+                response.setErrorType(ErrorResponseType.DataCorrupted);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
 
         } else {
-            response.setErrorType(ErrorResponseType.NoDataFound);
-            response.setMessage("charity unfounded");
-            response.setErrorCode(40000);
+            response.setMessage("no charity found in the waiting list with this id");
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
-
-
     }
 
-    @GetMapping("/getCharityByUser{userId}")
-    public Response getCharityByUser(@RequestParam String userId) {
-        int id = Integer.parseInt(userId);
-        if (profileController.checkUserExist(userId)){
 
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("charity for user founded");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setObject(repository.findByownerEquals(id));
-        }else{
-            response.setErrorType(ErrorResponseType.NoDataFound);
-            response.setMessage("charity for user not founded");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
-
-
-
-
-
-
-
-        }
-        return response;
-
-
-    }
+    //
+    //
+    //
+    //
     @PostMapping("/createCharity")
-    public Response createCharity(@RequestBody CreationRequest request )  {
-
-        ExampleMatcher matching = ExampleMatcher.matching()
-                .withMatcher("charityTitle", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<CharityModel> example = Example.<CharityModel>of(new CharityModel(request.title()), matching);
-        boolean exists = repository.exists(example);
-        if(exists){
-            CharityModel charity = new CharityModel();
-          charity.setCreatedAt(request.createdAt());
-          charity.setAmount(request.amount());
-          charity.setImage(request.image());
-          charity.setDescription(request.description());
-          charity.setCurrentAmount(request.currentAmount());
-          charity.setLimitTime(request.limitTime());
-          charity.setTitle(request.title());
-          charity.setOwner(request.owner());
-
-            //ban
-            //message
-            repository.save(charity);
-            response.setMessage("charity Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
-        }else {
-            response.setMessage("charity already exist");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
-        }
-        return response;
-    }
-
-
-    @PutMapping("/updateCharity")
-    public Response updateCharity(@RequestBody UpdateRequest request) {
-        CharityModel charity = new CharityModel();
-        Optional<CharityModel> charityModel = repository.findById(request.id());
-        if (charityModel.isPresent()){
+    public ResponseModel createNewCharity(@RequestBody CreationRequest request) {
+        List<CharityModel> charityModelList = repository.findByTitle(request.title());
+        if (charityModelList.isEmpty()) {
+            WaitingCharityManagingListModel charity = new WaitingCharityManagingListModel();
+            charity.setRequestType(requestType.add);
+            charity.setCreatedAt(request.createdAt());
             charity.setModifiedAt(request.modifiedAt());
-            charity.setAmount(request.amount());
+            charity.setTarget(request.target());
+            charity.setLongitude(request.longitude());
+            charity.setLimitDay(request.limitDay());
+            charity.setLatitude(request.latitude());
+            charity.setInEmerald(request.inEmerald());
+            charity.setCategory(request.category());
             charity.setImage(request.image());
             charity.setDescription(request.description());
             charity.setCurrentAmount(request.currentAmount());
-            charity.setLimitTime(request.limitTime());
             charity.setTitle(request.title());
             charity.setOwner(request.owner());
-
-            //ban
-            //message
-            repository.save(charity);
-            response.setMessage("charity information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
+            charity.setScore(request.score());
+            waitingCharityManagingListRepository.save(charity);
+            response.setMessage("charity Added Successfully to waiting list");
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
             response.setObject(charity);
-        }else {
-            response.setMessage("charity unfounded");
-            response.setErrorCode(40000);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        } else {
+            response.setMessage("charity already exist in waiting list");
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
+
+
+    /******************************************************************************************************************/
+
+
+
+    /****UPDATE PRODUCT****/
+    @PutMapping("/updateProduct")
+    public ResponseModel updateProduct(@RequestBody UpdateRequest request) {
+        Optional<CharityModel> charityModel = repository.findById(request.id());
+        if (charityModel.isPresent()) {
+            List<WaitingCharityManagingListModel> waitingCharityManagingListModelList = waitingCharityManagingListRepository.findByModifiedCharityId(request.id());
+            if (waitingCharityManagingListModelList.isEmpty()) {
+                WaitingCharityManagingListModel charity = new WaitingCharityManagingListModel();
+                charity.setModifiedCharityId(request.id());
+                charity.setRequestType(requestType.modify);
+                charity.setCreatedAt(request.createdAt());
+                charity.setModifiedAt(request.modifiedAt());
+                charity.setTarget(request.target());
+                charity.setLongitude(request.longitude());
+                charity.setLimitDay(request.limitDay());
+                charity.setLatitude(request.latitude());
+                charity.setInEmerald(request.inEmerald());
+                charity.setCategory(request.category());
+                charity.setImage(request.image());
+                charity.setDescription(request.description());
+                charity.setCurrentAmount(request.currentAmount());
+                charity.setTitle(request.title());
+                charity.setOwner(request.owner());
+                charity.setScore(request.score());
+                waitingCharityManagingListRepository.save(charity);
+                response.setMessage("charity Added Successfully to waiting list");
+                response.setErrorType(ErrorResponseType.Nothing);
+                response.setReturnedBoolean(true);
+                response.setObject(charity);
+                response.setErrorCode("20000");
+                response.setThereIsAnError(false);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            } else {
+                response.setMessage("already there is a modify request for this charity,please wait or call the support team");
+                response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+        } else {
+            response.setMessage("charity unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+
+        return response;
+    }
+
+    @PutMapping("/acceptUpdateCharity{id}")
+    public ResponseModel acceptUpdateCharity(@PathVariable("id") Integer id) {
+        Optional<WaitingCharityManagingListModel> waitingCharityManagingListModel = waitingCharityManagingListRepository.findById(id);
+        if (waitingCharityManagingListModel.isPresent()) {
+            if (waitingCharityManagingListModel.get().getRequestType() == requestType.modify) {
+                Optional<CharityModel> charityModelList = repository.findById(waitingCharityManagingListModel.get().getModifiedCharityId());
+                if (!charityModelList.isPresent()) {
+                    CharityModel charity = charityModelList.get();
+                    charity.setCreatedAt(waitingCharityManagingListModel.get().getCreatedAt());
+                    charity.setModifiedAt(waitingCharityManagingListModel.get().getModifiedAt());
+                    charity.setTarget(waitingCharityManagingListModel.get().getTarget());
+                    charity.setLongitude(waitingCharityManagingListModel.get().getLongitude());
+                    charity.setLimitDay(waitingCharityManagingListModel.get().getLimitDay());
+                    charity.setLatitude(waitingCharityManagingListModel.get().getLatitude());
+                    charity.setInEmerald(waitingCharityManagingListModel.get().getInEmerald());
+                    charity.setCategory(waitingCharityManagingListModel.get().getCategory());
+                    charity.setImage(waitingCharityManagingListModel.get().getImage());
+                    charity.setDescription(waitingCharityManagingListModel.get().getDescription());
+                    charity.setCurrentAmount(waitingCharityManagingListModel.get().getCurrentAmount());
+                    charity.setTitle(waitingCharityManagingListModel.get().getTitle());
+                    charity.setOwner(waitingCharityManagingListModel.get().getOwner());
+                    charity.setScore(waitingCharityManagingListModel.get().getScore());
+                    repository.save(charity);
+                    waitingCharityManagingListRepository.deleteById(id);
+                    response.setMessage("charity modified Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(charity);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(null);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("no charity found with this id");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(null);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(null);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+
+            } else {
+                response.setMessage("cant perform update request in add request");
+                response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+
+        } else {
+            response.setMessage("no charity found in the waiting list with this id");
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
+
+    //
     @DeleteMapping("/deleteCharity{charityId}")
     public void deleteCharity(@PathVariable("charityId") int id) {
         repository.deleteById(id);
     }
+    @DeleteMapping("/refuseCreateOrDeleteCharityDemand{demandId}")
+    public void refuseCreateOrDeleteCharityDemand(@PathVariable("demandId") int id) {
+        waitingCharityManagingListRepository.deleteById(id);
+    }
+
 }
 

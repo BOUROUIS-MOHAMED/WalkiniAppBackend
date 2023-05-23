@@ -3,14 +3,11 @@ package com.walkini.controllers;
 
 import com.walkini.AppConstants;
 import com.walkini.models.*;
-import com.walkini.repositories.CouponRepository;
 import com.walkini.repositories.RarityRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,36 +16,44 @@ import java.util.Optional;
 @CrossOrigin
 public class RarityController {
     private final RarityRepository repository;
-    private final ProfileController profileController;
 
-    public RarityController(RarityRepository repository, ProfileController profileController) {
+    public RarityController(RarityRepository repository) {
         this.repository = repository;
-        this.profileController = profileController;
+
     }
 
 
-    record CreationRequest( String name, String rarityColor, String rarityPercent, String rarityLevel, Timestamp createdAt, Timestamp modifiedAt) {
+    record CreationRequest(Integer id, String name, String rarityColor, Double rarityPercent, String createdAt, String modifiedAt) {
     }
-    record UpdateRequest(Integer id, String name, String rarityColor, String rarityPercent, String rarityLevel, Timestamp createdAt, Timestamp modifiedAt) {
+    record UpdateRequest(Integer id, String name, String rarityColor, Double rarityPercent, String createdAt, String modifiedAt) {
     }
-    Response response = new Response();
+    ResponseModel response = new ResponseModel();
+
+
+
+    public Double returnRarity(Integer id) {
+        Optional<RarityModel> rarityModel=repository.findById(id);
+        if (rarityModel.isPresent()){
+            return rarityModel.get().getRarityPercent();
+        }else {
+            return 0.0;
+        }
+    }
+
 
     @GetMapping("/getAllRarity")
-    public List<RarityModel> getAllCoupon() {
+    public List<RarityModel> getAllRarity() {
         return repository.findAll();
     }
 
     @PostMapping("/createRarity")
-    public Response createRarity(@RequestBody CreationRequest request )  {
+    public ResponseModel createRarity(@RequestBody CreationRequest request )  {
 
-        ExampleMatcher matching = ExampleMatcher.matching()
-                .withMatcher("Name", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<RarityModel> example = Example.<RarityModel>of(new RarityModel(request.name()), matching);
-        boolean exists = repository.exists(example);
-        if(exists){
+      List<RarityModel>rarityModelList=repository.findByname(request.name());
+        if(rarityModelList.isEmpty()){
             RarityModel rarity = new RarityModel();
            rarity.setRarityColor(request.rarityColor());
-           rarity.setRarityLevel(request.rarityLevel());
+
            rarity.setRarityPercent(request.rarityPercent());
            rarity.setCreatedAt(request.createdAt());
            rarity.setName(request.name());
@@ -59,26 +64,38 @@ public class RarityController {
             //message
             repository.save(rarity);
             response.setMessage("rarity Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(rarity);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("rarity already exist");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
 
 
     @PutMapping("/updateRarity")
-    public Response updateRariry(@RequestBody UpdateRequest request) {
-        RarityModel rarity = new RarityModel();
+    public ResponseModel updateRariry(@RequestBody UpdateRequest request) {
+
         Optional<RarityModel> rarityModel = repository.findById(request.id());
         if (rarityModel.isPresent()){
+            RarityModel rarity = rarityModel.get();
             rarity.setRarityColor(request.rarityColor());
-            rarity.setRarityLevel(request.rarityLevel());
             rarity.setRarityPercent(request.rarityPercent());
             rarity.setCreatedAt(request.createdAt());
             rarity.setName(request.name());
@@ -88,15 +105,28 @@ public class RarityController {
             //message
             repository.save(rarity);
             response.setMessage("rarity information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
             response.setObject(rarity);
+
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("rarity unfounded");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
@@ -104,5 +134,35 @@ public class RarityController {
     public void deleteRarity(@PathVariable("rarityId") int id) {
         repository.deleteById(id);
     }
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<RarityModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
+
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
+
 }
 

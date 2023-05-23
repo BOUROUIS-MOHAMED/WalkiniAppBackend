@@ -2,7 +2,7 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
+
  
 
 
@@ -30,21 +30,23 @@ allocationSize=1,
     private String image;
     @Column(name="boostDurationInSeconds")
     private Long boostDurationInSeconds;
-    @Column(name = "boostPrice")
-    private String price;
+    @Column(name ="boostPrice")
+    private Double price;
+    @Column(name ="priceInEmerald")
+    private Boolean priceIsInEmerald;
     @Column(name="boostModifiedAttributesList")
     private String modifiedAttributes;
     @Column(name="boostInBoxOrNot")
     private Boolean boostInBoxOrNot=false;
     @Column(name="boostRarity")
     private Integer boostRarity;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    private String createdAt;
+    private String modifiedAt;
 
     public BoostsModel() {
     }
 
-    public BoostsModel(Integer id, String name, String description, String image, Long boostDurationInSeconds, String price, String modifiedAttributes, Boolean boostInBoxOrNot, Integer boostRarity, Timestamp createdAt, Timestamp modifiedAt) {
+    public BoostsModel(Integer id, String name, String description, String image, Long boostDurationInSeconds, Double price, String modifiedAttributes, Boolean boostInBoxOrNot, Integer boostRarity, String createdAt, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -101,11 +103,11 @@ allocationSize=1,
         this.boostDurationInSeconds = delay;
     }
 
-    public String getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
@@ -133,19 +135,19 @@ allocationSize=1,
         this.boostRarity = boostRarity;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

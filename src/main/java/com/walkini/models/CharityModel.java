@@ -2,59 +2,66 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
-import java.util.Set;
-
-
 @Entity(name = "charity")
 public class CharityModel {
     @Id
     @SequenceGenerator(
-allocationSize=1,
-            name="charity_id_sequence",
+            allocationSize = 1,
+            name = "charity_id_sequence",
             sequenceName = "charity_id_sequence")
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "charity_id_sequence"
     )
 
-    @Column(name="id")
+    @Column(name = "id")
     private Integer id;
-    @Column(name="charityTitle")
+    @Column(name = "charityTitle")
     private String title;
-    @Column(name="charityImage")
+    @Column(name = "charityImage")
     private String image;
-    @Column(name="charityAmount")
-    private String amount;
-    @Column(name="charityDescription")
+    @Column(name = "charityDescription")
     private String description;
-    @Column(name="charityCurrentAmount")
+    @Column(name = "charityTarget")
+    private String target;
+    @Column(name = "charityScore")
+    private String score;
+    @Column(name = "inEmerald")
+    private Boolean inEmerald;
+    @Column(name = "charityCategory")
+    private String category;
+    @Column(name = "charityCurrentAmount")
     private String currentAmount;
-    @Column(name = "charityLimitTime")
-    private Timestamp limitTime;
+    @Column(name = "charityLimitDay")
+    private String limitDay;
+    @Column(name = "charityLatitude")
+    private Double latitude;
+    @Column(name = "charityLongitude")
+    private Double longitude;
     @Column(name = "owner")
     private Integer owner;
-
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    private String createdAt;
+    private String modifiedAt;
 
     public CharityModel() {
     }
 
-    public CharityModel(Integer id, String title, String image, String amount, String description, String currentAmount, Timestamp limitTime, Integer owner, Timestamp createdAt, Timestamp modifiedAt) {
+    public CharityModel(Integer id, String title, String image, String description, String target, String score, Boolean inEmerald, String category, String currentAmount, String limitDay, Double latitude, Double longitude, Integer owner, String createdAt, String modifiedAt) {
         this.id = id;
         this.title = title;
         this.image = image;
-        this.amount = amount;
         this.description = description;
+        this.target = target;
+        this.score = score;
+        this.inEmerald = inEmerald;
+        this.category = category;
         this.currentAmount = currentAmount;
-        this.limitTime = limitTime;
+        this.limitDay = limitDay;
+        this.latitude = latitude;
+        this.longitude = longitude;
         this.owner = owner;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public CharityModel(String title) {
     }
 
     public Integer getId() {
@@ -81,20 +88,44 @@ allocationSize=1,
         this.image = image;
     }
 
-    public String getAmount() {
-        return amount;
-    }
-
-    public void setAmount(String amount) {
-        this.amount = amount;
-    }
-
     public String getDescription() {
         return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
+
+    public Boolean getInEmerald() {
+        return inEmerald;
+    }
+
+    public void setInEmerald(Boolean inEmerald) {
+        this.inEmerald = inEmerald;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getCurrentAmount() {
@@ -105,12 +136,28 @@ allocationSize=1,
         this.currentAmount = currentAmount;
     }
 
-    public Timestamp getLimitTime() {
-        return limitTime;
+    public String getLimitDay() {
+        return limitDay;
     }
 
-    public void setLimitTime(Timestamp limitTime) {
-        this.limitTime = limitTime;
+    public void setLimitDay(String limitDay) {
+        this.limitDay = limitDay;
+    }
+
+    public Double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+
+    public Double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
     }
 
     public Integer getOwner() {
@@ -121,19 +168,19 @@ allocationSize=1,
         this.owner = owner;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

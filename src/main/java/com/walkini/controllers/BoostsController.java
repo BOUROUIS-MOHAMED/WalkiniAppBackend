@@ -2,17 +2,15 @@
         package com.walkini.controllers;
 
 import com.walkini.AppConstants;
-import com.walkini.models.ActionModel;
-import com.walkini.models.BoostsModel;
-import com.walkini.models.ErrorResponseType;
-import com.walkini.models.Response;
+import com.walkini.models.*;
 import com.walkini.repositories.BoostRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import com.walkini.repositories.NormalUserRepository;
+import jakarta.persistence.Id;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,17 +19,19 @@ import java.util.Optional;
 @CrossOrigin
 public class BoostsController {
     private final BoostRepository repository;
+    private final NormalUserRepository normalUserRepository;
 
-    public BoostsController(BoostRepository repository) {
+    public BoostsController(BoostRepository repository, NormalUserRepository normalUserRepository) {
         this.repository = repository;
+        this.normalUserRepository = normalUserRepository;
     }
 
 
-    record CreationRequest(Integer id, String name, String description, String image, Long duration, String price, String modifiedAttributes, Boolean boostInBoxOrNot, Integer boostRarity, Timestamp createdAt
-
+    record CreationRequest(
+             String name, String description, String image, Long boostDurationInSeconds, Double price, String modifiedAttributes, Boolean boostInBoxOrNot, Integer boostRarity, String createdAt, String modifiedAt
     )  {
     }
-    record UpdateRequest(Integer id, String name, String description, String image, Long duration, String price, String modifiedAttributes, Boolean boostInBoxOrNot, Integer boostRarity, Timestamp modifiedAt
+    record UpdateRequest(Integer id, String name, String description, String image, Long boostDurationInSeconds, Double price, String modifiedAttributes, Boolean boostInBoxOrNot, Integer boostRarity, String createdAt, String modifiedAt
 
     )  {
     }
@@ -40,18 +40,174 @@ public class BoostsController {
 
     )  {
     }
-    Response response = new Response();
+    ResponseModel response = new ResponseModel();
+
+
 
     @PostMapping("/setBoostToUser")
-    public Response setBoostToUser() {
+    public ResponseModel setBoostToUserAPI(@RequestParam Integer id,@RequestParam Integer userId) {
+        return setBoostToUser(id,userId);
+    }
+    public ResponseModel setBoostToUser(Integer id,Integer userId) {
+
+        Optional<BoostsModel> boostsModel=repository.findById(id);
+     if (boostsModel.isPresent()){
+         Optional<NormalUserModel> profile= normalUserRepository.findById(userId);
+         if (profile.isPresent()){
+             String str= profile.get().getBoosts();
+             List<String> myList = new ArrayList<String>(Arrays.asList(str.split("---")));
+             if (!myList.contains(id.toString())){
+                 myList.add(id.toString());
+                 profile.get().setBoosts(String.join("---",myList));
+                 response.setMessage("the\"+boostsModel.get().getName()+\" boost added to user with mail\"+profile.get().getEmail() +\" Successfully");
+                 response.setErrorType(ErrorResponseType.Nothing);
+                 response.setReturnedBoolean(true);
+                 response.setObject(profile);
+                 response.setErrorCode("20000");
+                 response.setThereIsAnError(false);
+                 response.setReturnedInteger(null);
+                 response.setReturnedList(myList);
+                 response.setReturnedString(profile.get().getBoosts());
+                 response.setReturnedMultipartFile(null);
+             } else {
+                 response.setMessage("this user already had this boost");
+                 response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                 response.setReturnedBoolean(false);
+                 response.setObject(myList);
+                 response.setErrorCode("40000");
+                 response.setThereIsAnError(true);
+                 response.setReturnedInteger(null);
+                 response.setReturnedList(myList);
+                 response.setReturnedString(null);
+                 response.setReturnedMultipartFile(null);
+             }
+
+         }else{
+             response.setMessage("No user found with this info");
+             response.setErrorType(ErrorResponseType.NoDataFound);
+             response.setReturnedBoolean(false);
+             response.setObject(null);
+             response.setErrorCode("40000");
+             response.setThereIsAnError(true);
+             response.setReturnedInteger(null);
+             response.setReturnedList(null);
+             response.setReturnedString(null);
+             response.setReturnedMultipartFile(null);
+         }
+     }else {
+         response.setMessage("No boost found with this info");
+         response.setErrorType(ErrorResponseType.NoDataFound);
+         response.setReturnedBoolean(false);
+         response.setObject(null);
+         response.setErrorCode("40000");
+         response.setThereIsAnError(true);
+         response.setReturnedInteger(null);
+         response.setReturnedList(null);
+         response.setReturnedString(null);
+         response.setReturnedMultipartFile(null);
+     }
 
         return response;
     }
     @PostMapping("/removeBoostToUser")
-    public Response removeBoostToUser() {
+    public ResponseModel removeBoostToUserApi(@RequestParam Integer id,@RequestParam Integer userId) {
+removeBoostToUser(id, userId);
+        return response;
+    }
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<BoostsModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
+
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
+    public ResponseModel removeBoostToUser(Integer id,Integer userId){
+
+
+        Optional<BoostsModel> boostsModel=repository.findById(id);
+        if (boostsModel.isPresent()){
+            Optional<NormalUserModel> profile= normalUserRepository.findById(userId);
+            if (profile.isPresent()){
+                String str= profile.get().getBoosts();
+                List<String> myList = new ArrayList<String>(Arrays.asList(str.split("---")));
+                if (myList.contains(id.toString())){
+                    myList.remove(id.toString());
+                    profile.get().setBoosts(String.join("---",myList));
+                    response.setMessage("the "+boostsModel.get().getName()+" boost removed from the user with mail "+profile.get().getEmail() +" Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(profile);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(profile.get().getBoosts());
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("this user dont have this boost");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(myList);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+
+            }else{
+                response.setMessage("No user found with this info");
+                response.setErrorType(ErrorResponseType.NoDataFound);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+        }else {
+            response.setMessage("No boost found with this info");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
 
         return response;
     }
+
+
+
 
 
     @GetMapping("/getAllBoosts")
@@ -60,68 +216,89 @@ public class BoostsController {
     }
 
     @PostMapping("/createBoost")
-    public Response createBoost(@RequestBody CreationRequest request )  {
-
-        ExampleMatcher matching = ExampleMatcher.matching()
-                .withMatcher("boostName", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<BoostsModel> example = Example.<BoostsModel>of(new BoostsModel(request.name()), matching);
-        boolean exists = repository.exists(example);
-        if(exists){
+    public ResponseModel createBoost(@RequestBody CreationRequest request )  {
+        List<BoostsModel> boostModels=repository.findByName(request.name());
+        if(boostModels.isEmpty()){
             BoostsModel boost = new BoostsModel();
-           boost.setCreatedAt(request.createdAt());
-            boost.setName(request.name());
-            boost.setBoostRarity(request.boostRarity());
-            boost.setDescription(request.description());
-            boost.setBoostInBoxOrNot(request.boostInBoxOrNot());
-            boost.setImage(request.image());
-            boost.setBoostDurationInSeconds(request.duration());
-            boost.setModifiedAttributes(request.modifiedAttributes());
-            boost.setPrice(request.price());
-            //ban
-            //message
-            repository.save(boost);
-            response.setMessage("boost Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
-        }else {
-            response.setMessage("boost already exist");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
-        }
-        return response;
-    }
-
-
-    @PutMapping("/updateBoost")
-    public Response updateBoost(@RequestBody UpdateRequest request) {
-        BoostsModel boost = new BoostsModel();
-        Optional<BoostsModel> boostsModel = repository.findById(request.id());
-        if (boostsModel.isPresent()){
-
+            boost.setCreatedAt(request.createdAt());
             boost.setModifiedAt(request.modifiedAt());
             boost.setName(request.name());
             boost.setBoostRarity(request.boostRarity());
             boost.setDescription(request.description());
             boost.setBoostInBoxOrNot(request.boostInBoxOrNot());
             boost.setImage(request.image());
-            boost.setBoostDurationInSeconds(request.duration());
             boost.setModifiedAttributes(request.modifiedAttributes());
             boost.setPrice(request.price());
+            boost.setBoostDurationInSeconds(request.boostDurationInSeconds());
+            //ban
+            //message
+            repository.save(boost);
+            response.setMessage("boost created Successfully");
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(boost);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("boost already exist");
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
+
+
+    @PutMapping("/updateBoost")
+    public ResponseModel updateBoost(@RequestBody UpdateRequest request) {
+
+        Optional<BoostsModel> boostsModel = repository.findById(request.id());
+        if (boostsModel.isPresent()){
+            BoostsModel boost =boostsModel.get();
+            boost.setCreatedAt(request.createdAt());
+            boost.setModifiedAt(request.modifiedAt());
+            boost.setName(request.name());
+            boost.setBoostRarity(request.boostRarity());
+            boost.setDescription(request.description());
+            boost.setBoostInBoxOrNot(request.boostInBoxOrNot());
+            boost.setImage(request.image());
+            boost.setModifiedAttributes(request.modifiedAttributes());
+            boost.setPrice(request.price());
+            boost.setBoostDurationInSeconds(request.boostDurationInSeconds());
             //ban
             //message
             repository.save(boost);
             response.setMessage("boost information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
             response.setObject(boost);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
-            response.setMessage("action unfounded");
-            response.setErrorCode(40000);
+            response.setMessage("boost unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }

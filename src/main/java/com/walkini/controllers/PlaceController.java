@@ -3,14 +3,12 @@ package com.walkini.controllers;
 
 import com.walkini.AppConstants;
 import com.walkini.models.*;
-import com.walkini.repositories.CouponRepository;
+import com.walkini.repositories.NormalUserRepository;
 import com.walkini.repositories.PlaceRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,99 +17,252 @@ import java.util.Optional;
 @CrossOrigin
 public class PlaceController {
     private final PlaceRepository repository;
-    private final ProfileController profileController;
 
-    public PlaceController(PlaceRepository repository, ProfileController profileController) {
+    private final NormalUserRepository normalUserRepository;
+
+    public PlaceController(PlaceRepository repository, NormalUserRepository normalUserRepository) {
         this.repository = repository;
-        this.profileController = profileController;
+
+        this.normalUserRepository = normalUserRepository;
     }
 
 
-    record CreationRequest(String name, double latitude, double longitude, String description, Integer rarity, String image, Timestamp createdAt, Timestamp modifiedAt) {
+    record CreationRequest(Integer id, String name, Double latitude, Double longitude, String description, Integer rarity, String image, String productPrize, String coinPrize, String couponPrize, String boostPrize, Integer owner, String createdAt, String modifiedAt) {
     }
-    record UpdateRequest(Integer id, String name, double latitude, double longitude, String description, Integer rarity, String image, Timestamp createdAt, Timestamp modifiedAt) {
+    record UpdateRequest(Integer id, String name, Double latitude, Double longitude, String description, Integer rarity, String image, String productPrize, String coinPrize, String couponPrize, String boostPrize, Integer owner, String createdAt, String modifiedAt) {
     }
-    Response response = new Response();
-    @PostMapping("/checkIfUserReachThePosition")
-    public Response checkIfUserReachThePosition() {
+    ResponseModel response = new ResponseModel();
+    @PostMapping("/scanQrCodeByPlaceOwner")
+    public ResponseModel checkIfUserReachThePosition() {
         return response;
     }
 
     @PostMapping("/userTakeThePosition")
-    public Response userTakeThePosition() {
+    public ResponseModel userTakeThePosition() {
         return response;
     }
 
     @PostMapping("/startThePositionCounterForThisUser")
-    public Response startThePositionCounterForThisUser() {
+    public ResponseModel startThePositionCounterForThisUser() {
         return response;
     }
 
 
+    @PostMapping("/setPlaceToUser")
+    public ResponseModel setPlaceToUserAPI(@RequestParam Integer id,@RequestParam Integer userId) {
+        return setPlaceToUser(id,userId);
+    }
+    public ResponseModel setPlaceToUser(Integer id,Integer userId) {
 
+        Optional<PlaceModel> placeModel=repository.findById(id);
+        if (placeModel.isPresent()){
+            Optional<NormalUserModel> profile= normalUserRepository.findById(userId);
+            if (profile.isPresent()){
+                String str= profile.get().getPlaces();
+                List<String> myList = new ArrayList<String>(Arrays.asList(str.split("---")));
+                if (!myList.contains(id.toString())){
+                    myList.add(id.toString());
+                    profile.get().setPlaces(String.join("---",myList));
+                    response.setMessage("the "+placeModel.get().getName()+ " place added to user with mail "+profile.get().getEmail() + " Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(profile);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(profile.get().getPlaces());
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("this user already had this place");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(myList);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+
+            }else{
+                response.setMessage("No user found with this info");
+                response.setErrorType(ErrorResponseType.NoDataFound);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+        }else {
+            response.setMessage("No place found with this info");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+
+        return response;
+    }
+    @PostMapping("/removePlaceToUser")
+    public ResponseModel removePlaceToUserApi(@RequestParam Integer id,@RequestParam Integer userId) {
+        removePlaceToUser(id, userId);
+        return response;
+    }
+    public ResponseModel removePlaceToUser(Integer id,Integer userId){
+
+
+        Optional<PlaceModel> placeModel=repository.findById(id);
+        if (placeModel.isPresent()){
+            Optional<NormalUserModel> profile= normalUserRepository.findById(userId);
+            if (profile.isPresent()){
+                String str= profile.get().getPlaces();
+                List<String> myList = new ArrayList<String>(Arrays.asList(str.split("---")));
+                if (myList.contains(id.toString())){
+                    myList.remove(id.toString());
+                    profile.get().setPlaces(String.join("---",myList));
+                    response.setMessage("the "+placeModel.get().getName()+" place removed from the user with mail "+profile.get().getEmail() +" Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(profile);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(profile.get().getPlaces());
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("this user dont have this place");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(myList);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+
+            }else{
+                response.setMessage("No user found with this info");
+                response.setErrorType(ErrorResponseType.NoDataFound);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+        }else {
+            response.setMessage("No place found with this info");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+
+        return response;
+    }
+
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<PlaceModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
+
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
+    }
     @GetMapping("/getAllPlaces")
     public List<PlaceModel> getAllPlaces() {
         return repository.findAll();
     }
-    @GetMapping("/getPlace{placeId}")
-    public Response getPlace(@RequestParam String placeId) {
-        int id = Integer.parseInt(placeId);
-
-        if (repository.existsById(id)) {
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("place founded");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setObject(repository.findById(id));
-
-        } else {
-            response.setErrorType(ErrorResponseType.NoDataFound);
-            response.setMessage("place unfounded");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
-        }
-        return response;
-
-
-    }
-
     @PostMapping("/createPlace")
-    public Response createPlace(@RequestBody CreationRequest request )  {
+    public ResponseModel createPlace(@RequestBody CreationRequest request )  {
 
-        ExampleMatcher matching = ExampleMatcher.matching()
-                .withMatcher("latitude", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<PlaceModel> example = Example.<PlaceModel>of(new PlaceModel(request.latitude(),request.longitude()), matching);
-        boolean exists = repository.exists(example);
-        if(exists){
+        List<PlaceModel> placeModelList=repository.findByName(request.name());
+        if(placeModelList.isEmpty()){
             PlaceModel place = new PlaceModel();
-          place.setCreatedAt(request.createdAt());
+
+          place.setOwner(request.owner());
+          place.setModifiedAt(request.modifiedAt());
+          place.setLongitude(request.longitude());
+          place.setLatitude(request.latitude());
+
+          place.setCoinPrize(request.coinPrize());
           place.setDescription(request.description());
           place.setImage(request.image());
-          place.setLatitude(request.latitude());
-          place.setLongitude(request.longitude());
           place.setName(request.name());
           place.setRarity(request.rarity());
-          place.setModifiedAt(request.createdAt());
 
-            //ban
-            //message
+          place.setCreatedAt(request.createdAt());
+
             repository.save(place);
             response.setMessage("place Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(place);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("place already exist");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
 
 
     @PutMapping("/updatePlace")
-    public Response updatePlace(@RequestBody UpdateRequest request) {
+    public ResponseModel updatePlace(@RequestBody UpdateRequest request) {
         PlaceModel place = new PlaceModel();
         Optional<PlaceModel> placeModel = repository.findById(request.id());
         if (placeModel.isPresent()){
@@ -128,15 +279,26 @@ public class PlaceController {
             //message
             repository.save(place);
             response.setMessage("place information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(true);
             response.setObject(place);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("place unfounded");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("20000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }

@@ -3,14 +3,12 @@ package com.walkini.controllers;
 
 import com.walkini.AppConstants;
 import com.walkini.models.*;
-import com.walkini.repositories.CouponRepository;
 import com.walkini.repositories.InboxRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import com.walkini.repositories.NormalUserRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,22 +17,222 @@ import java.util.Optional;
 @CrossOrigin
 public class InboxController {
     private final InboxRepository repository;
-    private final ProfileController profileController;
+    private final NormalUserRepository normalUserRepository;
 
-    public InboxController(InboxRepository repository, ProfileController profileController) {
+
+    public InboxController(InboxRepository repository, NormalUserRepository normalUserRepository) {
         this.repository = repository;
-        this.profileController = profileController;
+
+        this.normalUserRepository = normalUserRepository;
     }
 
 
-    record CreationRequest(String title, String content, String image, Integer firstAction, Integer secondAction, Boolean isGift, Boolean isCollected, Boolean isSeen, Integer collectGiftButtonAction, Timestamp createdAt) {
+    record CreationRequest( String title, String content, Boolean isGift, String createdAt, String modifiedAt) {
     }
-    record UpdateRequest(Integer id, String title, String content, String image, Integer firstAction, Integer secondAction, Boolean isGift, Boolean isCollected, Boolean isSeen, Integer collectGiftButtonAction, Timestamp createdAt, Timestamp modifiedAt) {
+    record UpdateRequest(Integer id, String title, String content, Boolean isGift, String createdAt, String modifiedAt) {
     }
-    Response response = new Response();
+    ResponseModel response = new ResponseModel();
+    @PostMapping("/setInboxToUser")
+    public ResponseModel setInboxToUserAPI(@RequestParam Integer id,@RequestParam Integer userId) {
+        return setInboxToUser(id,userId);
+    }
+    public ResponseModel setInboxToUser(Integer id,Integer userId) {
 
+        Optional<InboxModel> inboxModel=repository.findById(id);
+        if (inboxModel.isPresent()){
+            Optional<NormalUserModel> profile= normalUserRepository.findById(userId);
+            if (profile.isPresent()){
+                String str= profile.get().getInbox();
+                List<String> myList = new ArrayList<String>(Arrays.asList(str.split("---")));
+                if (!myList.contains(id.toString())){
+                    myList.add(id.toString());
+                    profile.get().setInbox(String.join("---",myList));
+                    response.setMessage("the "+ inboxModel.get().getTitle()+ " inbox message added to user with mail "+profile.get().getEmail() + " Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(profile);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(profile.get().getInbox());
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("this user already had this inbox");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(myList);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+
+            }else{
+                response.setMessage("No user found with this info");
+                response.setErrorType(ErrorResponseType.NoDataFound);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+        }else {
+            response.setMessage("No inbox found with this info");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+
+        return response;
+    }
+    @PostMapping("/removeInboxToUser")
+    public ResponseModel removeInboxToUserApi(@RequestParam Integer id,@RequestParam Integer userId) {
+        removeInboxToUser(id, userId);
+        return response;
+    }
+    public ResponseModel removeInboxToUser(Integer id,Integer userId){
+
+
+        Optional<InboxModel> inboxModel=repository.findById(id);
+        if (inboxModel.isPresent()){
+            Optional<NormalUserModel> profile= normalUserRepository.findById(userId);
+            if (profile.isPresent()){
+                String str= profile.get().getInbox();
+                List<String> myList = new ArrayList<String>(Arrays.asList(str.split("---")));
+                if (myList.contains(id.toString())){
+                    myList.remove(id.toString());
+                    profile.get().setInbox(String.join("---",myList));
+                    response.setMessage("the "+inboxModel.get().getTitle()+" inbox removed from the user with mail "+profile.get().getEmail() +" Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(profile);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(profile.get().getInbox());
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("this user dont have this inbox");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(myList);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+
+            }else{
+                response.setMessage("No user found with this info");
+                response.setErrorType(ErrorResponseType.NoDataFound);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+        }else {
+            response.setMessage("No inbox found with this info");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+
+        return response;
+    }
     @GetMapping("/markInboxAsSeen")
-    public Response markInboxAsSeen() {
+    public ResponseModel markInboxAsSeenApi(@RequestParam Integer id,@RequestParam Integer userId) {
+        return  markInboxAsSeen(id,userId);
+    }
+
+
+    public ResponseModel markInboxAsSeen(Integer id,Integer userId) {
+
+        Optional<InboxModel> inboxModel=repository.findById(id);
+        if (inboxModel.isPresent()){
+            Optional<NormalUserModel> profile= normalUserRepository.findById(userId);
+            if (profile.isPresent()){
+                String str= profile.get().getInbox();
+                String strSeen= profile.get().getSeenInbox();
+                List<String> myList = new ArrayList<String>(Arrays.asList(str.split("---")));
+                List<String> mySeenList = new ArrayList<String>(Arrays.asList(strSeen.split("---")));
+                if (myList.contains(id.toString())){
+                    myList.remove(id.toString());
+                   mySeenList.add(id.toString());
+                   profile.get().setSeenInbox(String.join("---",mySeenList));
+                    profile.get().setInbox(String.join("---",myList));
+                    response.setMessage("the "+inboxModel.get().getTitle()+" inbox marked as seen for the user with mail "+profile.get().getEmail() +" Successfully");
+                    response.setErrorType(ErrorResponseType.Nothing);
+                    response.setReturnedBoolean(true);
+                    response.setObject(profile);
+                    response.setErrorCode("20000");
+                    response.setThereIsAnError(false);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(profile.get().getInbox());
+                    response.setReturnedMultipartFile(null);
+                } else {
+                    response.setMessage("this user dont have this inbox");
+                    response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                    response.setReturnedBoolean(false);
+                    response.setObject(myList);
+                    response.setErrorCode("40000");
+                    response.setThereIsAnError(true);
+                    response.setReturnedInteger(null);
+                    response.setReturnedList(myList);
+                    response.setReturnedString(null);
+                    response.setReturnedMultipartFile(null);
+                }
+
+            }else{
+                response.setMessage("No user found with this info");
+                response.setErrorType(ErrorResponseType.NoDataFound);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+        }else {
+            response.setMessage("No inbox found with this info");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+
         return response;
     }
 
@@ -43,99 +241,82 @@ public class InboxController {
     public List<InboxModel> getAllInbox() {
         return repository.findAll();
     }
-    @GetMapping("/getInbox{inboxId}")
-    public Response getInbox(@RequestParam String inboxId) {
-        int id = Integer.parseInt(inboxId);
-
-        if (repository.existsById(id)) {
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("inbox founded");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setObject(repository.findById(id));
-
-        } else {
-            response.setErrorType(ErrorResponseType.NoDataFound);
-            response.setMessage("inbox unfounded");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
-        }
-        return response;
-
-
-    }
-
 
     @PostMapping("/createInbox")
-    public Response createInbox(@RequestBody CreationRequest request )  {
+    public ResponseModel createInbox(@RequestBody CreationRequest request )  {
 
-        ExampleMatcher matching = ExampleMatcher.matching()
-                .withMatcher("title", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<InboxModel> example = Example.<InboxModel>of(new InboxModel(request.title()), matching);
-        boolean exists = repository.exists(example);
-        if(exists){
+       List<InboxModel> inboxModels=repository.findBytitle(request.title());
+        if(inboxModels.isEmpty()){
             InboxModel inbox = new InboxModel();
             inbox.setCreatedAt(request.createdAt());
-            inbox.setCollected(request.isCollected());
+            inbox.setTitle(request.title());
+            inbox.setModifiedAt(request.modifiedAt());
             inbox.setContent(request.content());
             inbox.setGift(request.isGift());
-            inbox.setImage(request.image());
-            inbox.setSeen(request.isSeen());
-            inbox.setContent(request.content());
-            inbox.setCollectGiftButtonAction(request.collectGiftButtonAction());
-            inbox.setFirstAction(request.firstAction());
-            inbox.setSecondAction(request.secondAction());
-            inbox.setTitle(request.title());
 
 
             //ban
             //message
             repository.save(inbox);
             response.setMessage("inbox Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(inbox);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("inbox already exist");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
 
 
     @PutMapping("/updateInbox")
-    public Response updateInbox(@RequestBody UpdateRequest request) {
-        InboxModel inbox = new InboxModel();
+    public ResponseModel updateInbox(@RequestBody UpdateRequest request) {
+
         Optional<InboxModel> inboxModel = repository.findById(request.id());
         if (inboxModel.isPresent()){
-            inbox.setModifiedAt(request.modifiedAt());
+            InboxModel inbox = inboxModel.get();
             inbox.setCreatedAt(request.createdAt());
-            inbox.setCollected(request.isCollected());
+            inbox.setTitle(request.title());
+            inbox.setModifiedAt(request.modifiedAt());
             inbox.setContent(request.content());
             inbox.setGift(request.isGift());
-            inbox.setImage(request.image());
-            inbox.setSeen(request.isSeen());
-            inbox.setContent(request.content());
-            inbox.setCollectGiftButtonAction(request.collectGiftButtonAction());
-            inbox.setFirstAction(request.firstAction());
-            inbox.setSecondAction(request.secondAction());
-            inbox.setTitle(request.title());
-
-            //ban
-            //message
             repository.save(inbox);
             response.setMessage("inbox information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
             response.setObject(inbox);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("inbox unfounded");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }

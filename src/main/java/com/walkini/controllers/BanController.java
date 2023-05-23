@@ -3,14 +3,10 @@ package com.walkini.controllers;
 
 import com.walkini.models.*;
 import com.walkini.repositories.BanRepository;
-import com.walkini.repositories.ProfileRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
+import com.walkini.repositories.NormalUserRepository;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.sql.Timestamp;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,18 +17,46 @@ import com.walkini.AppConstants;
 @CrossOrigin
 public class BanController {
     private final BanRepository repository;
-    private final ProfileRepository profileRepository;
+    private final NormalUserRepository normalUserRepository;
 
-    public BanController(BanRepository repository, ProfileRepository profileRepository) {
+    public BanController(BanRepository repository, NormalUserRepository normalUserRepository) {
         this.repository = repository;
-        this.profileRepository = profileRepository;
+        this.normalUserRepository = normalUserRepository;
     }
 
 
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<BanModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
 
-    record NewBanRequest(String name, String description, String image, String reason, Long banDuration, String message, Timestamp createdAt)  {
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
     }
-    record UpdateBanRequest(Integer id,String name, String description, String image, String reason, Long banDuration, String message, Timestamp modifiedAt)  {
+    record NewBanRequest(String name, String description, String reason, Long banDurationInSeconds, String message, String createdAt, String modifiedAt)  {
+    }
+    record UpdateBanRequest(Integer id, String name, String description, String reason, Long banDurationInSeconds, String message, String createdAt, String modifiedAt)  {
     }
 
     @GetMapping("/getAllBans")
@@ -41,63 +65,85 @@ public class BanController {
     }
 
     @PostMapping("/createABan")
-    public Response createABan(@RequestBody NewBanRequest request )  {
+    public ResponseModel createABan(@RequestBody NewBanRequest request )  {
+        List<BanModel> banModels=repository.findByName(request.name());
 
-        ExampleMatcher banNameMatching = ExampleMatcher.matching()
-                .withMatcher("banName", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<BanModel> example = Example.<BanModel>of(new BanModel(request.name()), banNameMatching);
-        boolean banExists = repository.exists(example);
-        if(banExists){
+
+
+        if(banModels.isEmpty()){
             BanModel ban = new BanModel();
             ban.setCreatedAt(request.createdAt());
             ban.setDescription(request.description());
             ban.setReason(request.reason());
-            ban.setImage(request.image());
+            ban.setModifiedAt(request.modifiedAt());
             ban.setName(request.name());
             ban.setMessage(request.message());
-            ban.setBanDurationInSeconds(request.banDuration());
+            ban.setBanDurationInSeconds(request.banDurationInSeconds());
 
-            //ban
-            //message
             repository.save(ban);
             response.setMessage("ban Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(ban);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("ban already exist");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
 
 
     @PutMapping("/updateBan")
-    public Response updateBan(@RequestBody UpdateBanRequest request) {
-        BanModel ban = new BanModel();
+    public ResponseModel updateBan(@RequestBody UpdateBanRequest request) {
+
         Optional<BanModel> banModel = repository.findById(request.id());
         if (banModel.isPresent()){
+            BanModel ban = banModel.get();
+            ban.setCreatedAt(request.createdAt());
             ban.setDescription(request.description());
             ban.setReason(request.reason());
-            ban.setImage(request.image());
+            ban.setModifiedAt(request.modifiedAt());
             ban.setName(request.name());
             ban.setMessage(request.message());
-            ban.setBanDurationInSeconds(request.banDuration());
-            ban.setModifiedAt(request.modifiedAt());
+            ban.setBanDurationInSeconds(request.banDurationInSeconds());
             //ban
             //message
             repository.save(ban);
             response.setMessage("ban information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(ban);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("ban unfounded");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
@@ -108,52 +154,120 @@ public class BanController {
 
 
     @GetMapping("/giveUserABan")
-    public Response giveUserABan(@RequestParam String userId,@RequestParam Integer banDetails,@RequestParam Long banDuration)  {
-            int id = Integer.parseInt(userId);
-        ProfileModel profile = new ProfileModel();
-        Optional<ProfileModel> profileModel = profileRepository.findById(id);
-        if (profileModel.isPresent()){
-            profile.setBanned(true);
-            profile.setBanDetails(banDetails);
-            profile.setBanDurationInSeconds(banDuration);
-            //ban
-            //message
-            profileRepository.save(profile);
-            response.setMessage("user Banned Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
+    public ResponseModel giveUserABan(@RequestParam Integer userId, @RequestParam Integer banDetails)  {
+        Optional<NormalUserModel> profile = normalUserRepository.findById(userId);
+
+        if (profile.isPresent()){
+            boolean banStatus = profile.get().getBanned();
+            Integer banDetailsStatus = profile.get().getBanInfo();
+            if (banStatus){
+              if(banDetailsStatus==banDetails){
+                      response.setMessage("This user Already banned with this details");
+                      response.setErrorType(ErrorResponseType.DataAlreadyExist);
+                      response.setReturnedBoolean(false);
+                      response.setObject(null);
+                      response.setErrorCode("40000");
+                      response.setThereIsAnError(true);
+                      response.setReturnedInteger(null);
+                      response.setReturnedList(null);
+                      response.setReturnedString(null);
+                      response.setReturnedMultipartFile(null);
+
+
+              }else {
+                  profile.get().setBanned(true);
+                  profile.get().setBanInfo(banDetails);
+                  response.setMessage("This user ban details is changed");
+                  response.setErrorType(ErrorResponseType.Nothing);
+                  response.setReturnedBoolean(true);
+                  response.setObject(profile);
+                  response.setErrorCode("20000");
+                  response.setThereIsAnError(false);
+                  response.setReturnedInteger(null);
+                  response.setReturnedList(null);
+                  response.setReturnedString(null);
+                  response.setReturnedMultipartFile(null);
+              }
+            }else{
+                profile.get().setBanned(true);
+                profile.get().setBanInfo(banDetails);
+                response.setMessage("This user banned successfully");
+                response.setErrorType(ErrorResponseType.Nothing);
+                response.setReturnedBoolean(true);
+                response.setObject(profile);
+                response.setErrorCode("20000");
+                response.setThereIsAnError(false);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+            normalUserRepository.save(profile.get());
         }else {
-            response.setMessage("error in banned this user");
-            response.setErrorCode(40000);
+            response.setMessage("no user found with this information");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
 
 
     }
     @GetMapping("/removeUserBan")
-    public Response removeUserBan(@RequestParam String userId)  {
-        int id = Integer.parseInt(userId);
-        ProfileModel profile = new ProfileModel();
-        Optional<ProfileModel> profileModel = profileRepository.findById(id);
+    public ResponseModel removeUserBan(@RequestParam Integer userId)  {
+
+
+        Optional<NormalUserModel> profileModel = normalUserRepository.findById(userId);
         if (profileModel.isPresent()){
-            profile.setBanned(false);
-            profile.setBanDetails(null);
-            profile.setBanDurationInSeconds(null);
-            //ban
-            //message
-            profileRepository.save(profile);
-            response.setMessage("user Banned Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
+
+            NormalUserModel profile =profileModel.get();
+            if (profile.getBanned()){
+                profile.setBanned(false);
+                profile.setBanInfo(null);
+
+                //ban
+                //message
+                normalUserRepository.save(profile);
+                response.setMessage("user Ban removed Successfully");
+                response.setErrorType(ErrorResponseType.Nothing);
+                response.setReturnedBoolean(true);
+                response.setObject(profile);
+                response.setErrorCode("20000");
+                response.setThereIsAnError(false);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }else {
+                response.setMessage("This user already unbanned");
+                response.setErrorType(ErrorResponseType.StatusError);
+                response.setReturnedBoolean(false);
+                response.setObject(null);
+                response.setErrorCode("40000");
+                response.setThereIsAnError(true);
+                response.setReturnedInteger(null);
+                response.setReturnedList(null);
+                response.setReturnedString(null);
+                response.setReturnedMultipartFile(null);
+            }
+
         }else {
-            response.setMessage("error in banned this user");
-            response.setErrorCode(40000);
+            response.setMessage("no user found ");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
 
@@ -162,8 +276,8 @@ public class BanController {
 
 
 
-    public Boolean checkBanFunction(@RequestParam String userId) {
-        int id = Integer.parseInt(userId);
+    public Boolean checkBanFunction(@RequestParam Integer userId) {
+
       /*  List<BanModel> banHistory= repository.findByUserBannedIdEquals(id);
         for (BanModel banModel:banHistory
              ) {
@@ -176,41 +290,15 @@ public class BanController {
                car.setBanned(true);
                return true;
            }*/
-        ProfileModel profile = new ProfileModel();
-        Optional<ProfileModel> profileModel = profileRepository.findById(id);
+        NormalUserModel profile = new NormalUserModel();
+        Optional<NormalUserModel> profileModel = normalUserRepository.findById(userId);
         if (profileModel.isPresent()){
             return profileModel.get().getBanned();
     }else {
-
-
-    return  profileModel.get().getBanned();
+    return null;
     }}
 
-    @GetMapping("/checkBan{x}")
-    public Response checkBan(@RequestParam String userId) {
-
-
-
-        int id = Integer.parseInt(userId);
-
-
-
-        if (checkBanFunction(userId)) {
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("user is banned");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(false);
-
-
-        } else {
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("user is not banned");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-        }
-        return response;
-    }
-    Response response = new Response();
+    ResponseModel response = new ResponseModel();
 
 
 

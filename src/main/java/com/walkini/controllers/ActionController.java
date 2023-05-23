@@ -2,18 +2,15 @@ package com.walkini.controllers;
 
 import com.walkini.AppConstants;
 import com.walkini.models.ActionModel;
-import com.walkini.models.BanModel;
+import com.walkini.models.BadgeModel;
 import com.walkini.models.ErrorResponseType;
-import com.walkini.models.Response;
+import com.walkini.models.ResponseModel;
 import com.walkini.repositories.ActionRepository;
-import com.walkini.repositories.ProfileRepository;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,11 +28,11 @@ public class ActionController {
     }
 
 
-    record NewActionRequest(String name, String route, Timestamp createdAt)  {
+    record NewActionRequest(String name, String route, String createdAt, String modifiedAt)  {
     }
-    record UpdateActionRequest(Integer id,String name, String route, Timestamp modifiedAt)  {
+    record UpdateActionRequest(Integer id, String name, String route, String createdAt, String modifiedAt)  {
     }
-    Response response = new Response();
+    ResponseModel response = new ResponseModel();
 
 
 
@@ -46,62 +43,136 @@ public class ActionController {
     }
 
     @PostMapping("/createAction")
-    public Response createAction(@RequestBody NewActionRequest request )  {
-
-        ExampleMatcher actionNameMatching = ExampleMatcher.matching()
-                .withMatcher("actionName", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<ActionModel> example = Example.<ActionModel>of(new ActionModel(request.name()), actionNameMatching);
-        boolean actionExists = repository.exists(example);
-        if(actionExists){
+    public ResponseModel createAction(@RequestBody NewActionRequest request )  {
+      List<ActionModel> actionModelList= repository.findByName(request.name());
+        if(actionModelList.isEmpty()){
             ActionModel action = new ActionModel();
             action.setCreatedAt(request.createdAt());
             action.setName(request.name());
+
             action.setRoute(request.route());
-            //ban
-            //message
+            action.setModifiedAt(request.modifiedAt());
             repository.save(action);
-            response.setMessage("action Added Successfully");
-            response.setErrorCode(20000);
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(action);
+            response.setMessage("action created successfully");
+            response.setErrorCode("20000");
             response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
-            response.setMessage("action already exist");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setMessage("action already exist");
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
 
 
     @PutMapping("/updateAction")
-    public Response updateAction(@RequestBody UpdateActionRequest request) {
-        ActionModel action = new ActionModel();
+    public ResponseModel updateAction(@RequestBody UpdateActionRequest request) {
+
         Optional<ActionModel> actionModel = repository.findById(request.id());
         if (actionModel.isPresent()){
-
+            ActionModel action = actionModel.get();
+            String previousName=actionModel.get().getName();
             action.setName(request.name());
             action.setRoute(request.route());
             action.setModifiedAt(request.modifiedAt());
             //ban
             //message
             repository.save(action);
-            response.setMessage("action information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setObject(action);
+            response.setMessage("action named"+previousName +" updated successfully with the new route "+request.route());
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("action unfounded");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
     @DeleteMapping("/deleteAction{actionId}")
-    public void deleteAction(@PathVariable("actionId") int id) {
+    public ResponseModel deleteAction(@PathVariable("actionId") int id) {
+        Optional<ActionModel> actionModel=repository.findById(id);
+        if (actionModel.isPresent()){
         repository.deleteById(id);
+            response.setMessage("action "+actionModel.get().getName()+ " deleted successfuly");
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+    }else{
+            response.setMessage("action unfounded,delete operation failled");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+       return response;
+    }
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<ActionModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
+
+            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
+            response.setErrorType(ErrorResponseType.NoDataFound);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }
+        return response;
     }
 }
 

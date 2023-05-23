@@ -2,7 +2,7 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
+
 
 
 
@@ -10,41 +10,41 @@ import java.sql.Timestamp;
 public class NotificationModel {
     @Id
     @SequenceGenerator(
-allocationSize=1,
-            name="notification_id_sequence",
+            allocationSize = 1,
+            name = "notification_id_sequence",
             sequenceName = "notification_id_sequence")
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "notification_id_sequence"
     )
 
-    @Column(name="id")
+    @Column(name = "id")
     private Integer id;
-    @Column(name="name")
+    @Column(name = "name")
     private String name;
-    @Column(name="notificationImage")
+    @Column(name = "notificationImage")
     private String image;
-    @Column(name="notificationSubtitle")
+    @Column(name = "notificationHasImage")
+    private Boolean notificationHasImage;
+    @Column(name = "notificationSubtitle")
     private String subtitle;
-    @Column(name="notificationAction")
+    @Column(name = "notificationAction")
     private Integer action;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    private String createdAt;
+    private String modifiedAt;
 
     public NotificationModel() {
     }
 
-    public NotificationModel(Integer id, String name, String image, String subtitle, Integer action, Timestamp createdAt, Timestamp modifiedAt) {
+    public NotificationModel(Integer id, String name, String image, Boolean notificationHasImage, String subtitle, Integer action, String createdAt, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.image = image;
+        this.notificationHasImage = notificationHasImage;
         this.subtitle = subtitle;
         this.action = action;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public NotificationModel(String name) {
     }
 
     public Integer getId() {
@@ -71,6 +71,14 @@ allocationSize=1,
         this.image = image;
     }
 
+    public Boolean getNotificationHasImage() {
+        return notificationHasImage;
+    }
+
+    public void setNotificationHasImage(Boolean notificationHasImage) {
+        this.notificationHasImage = notificationHasImage;
+    }
+
     public String getSubtitle() {
         return subtitle;
     }
@@ -87,19 +95,19 @@ allocationSize=1,
         this.action = action;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

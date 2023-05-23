@@ -2,10 +2,6 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
-
-
-
 @Entity(name = "modifiedAttribute")
 public class ModifiedAttributeModel {
     @Id
@@ -29,33 +25,25 @@ allocationSize=1,
     @Column(name="maxBoxPerDay")
     private Integer maxBoxPerDay;
     @Column(name="maxVisitPerDay")
-    private String maxVisitPerDay;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    private Integer maxVisitPerDay;
+    @Column(name="maxAskForConvertPerDay")
+    private Integer maxAskForConvertPerDay;
+    private String createdAt;
+    private String modifiedAt;
 
     public ModifiedAttributeModel() {
     }
 
-    public ModifiedAttributeModel(Integer id, String name, Integer maxStepsLimit, Double stepsMultiplayer, Integer maxBoxPerDay, String maxVisitPerDay, Timestamp createdAt, Timestamp modifiedAt) {
+    public ModifiedAttributeModel(Integer id, String name, Integer maxStepsLimit, Double stepsMultiplayer, Integer maxBoxPerDay, Integer maxVisitPerDay, Integer maxAskForConvertPerDay, String createdAt, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.maxStepsLimit = maxStepsLimit;
         this.stepsMultiplayer = stepsMultiplayer;
         this.maxBoxPerDay = maxBoxPerDay;
         this.maxVisitPerDay = maxVisitPerDay;
+        this.maxAskForConvertPerDay = maxAskForConvertPerDay;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public ModifiedAttributeModel(String name) {
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public Integer getId() {
@@ -64,6 +52,14 @@ allocationSize=1,
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Integer getMaxStepsLimit() {
@@ -90,27 +86,35 @@ allocationSize=1,
         this.maxBoxPerDay = maxBoxPerDay;
     }
 
-    public String getMaxVisitPerDay() {
+    public Integer getMaxVisitPerDay() {
         return maxVisitPerDay;
     }
 
-    public void setMaxVisitPerDay(String maxVisitPerDay) {
+    public void setMaxVisitPerDay(Integer maxVisitPerDay) {
         this.maxVisitPerDay = maxVisitPerDay;
     }
 
-    public Timestamp getCreatedAt() {
+    public Integer getMaxAskForConvertPerDay() {
+        return maxAskForConvertPerDay;
+    }
+
+    public void setMaxAskForConvertPerDay(Integer maxAskForConvertPerDay) {
+        this.maxAskForConvertPerDay = maxAskForConvertPerDay;
+    }
+
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

@@ -1,6 +1,6 @@
 package com.walkini.repositories;
 
-import com.walkini.models.ProfileModel;
+
 import com.walkini.models.StepHistoryModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 

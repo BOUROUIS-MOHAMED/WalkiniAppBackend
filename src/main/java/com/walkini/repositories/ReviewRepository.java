@@ -1,7 +1,6 @@
 package com.walkini.repositories;
 
-import com.walkini.models.BoxModel;
-import com.walkini.models.CartHistoryModel;
+
 import com.walkini.models.ReviewModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -12,5 +11,8 @@ public interface ReviewRepository
     List<ReviewModel> findByreviewedProductEquals(Integer Id);
 
     List<ReviewModel> findByuserIdEquals(Integer Id);
+
+    List<ReviewModel> findByUserIdAndReviewedProduct(Integer userId, Integer reviewedProduct);
+
 }
 

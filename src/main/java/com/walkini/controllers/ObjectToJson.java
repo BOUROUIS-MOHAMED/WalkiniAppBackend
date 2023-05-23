@@ -16,7 +16,7 @@ public class ObjectToJson {
     // Main driver method
     public static void main(String[] a) {
         // Creating object of Organisation
-        ProfileAdditionalInformationModel org = new ProfileAdditionalInformationModel();
+        NotificationModel org = new NotificationModel();
 
         // Insert the data into the object
 
@@ -42,7 +42,8 @@ public class ObjectToJson {
             // using printStackTrace() method
             e.printStackTrace();
         }
-    }}
+    }};
+
 
     // Method
     // Getting the data to be inserted

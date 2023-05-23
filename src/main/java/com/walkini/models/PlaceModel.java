@@ -2,7 +2,6 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
 
 
 
@@ -10,36 +9,39 @@ import java.sql.Timestamp;
 public class PlaceModel {
     @Id
     @SequenceGenerator(
-allocationSize=1,
-            name="place_id_sequence",
+            allocationSize = 1,
+            name = "place_id_sequence",
             sequenceName = "place_id_sequence")
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "place_id_sequence"
     )
 
-    @Column(name="id")
+    @Column(name = "id")
     private Integer id;
-    @Column(name="placeName")
+    @Column(name = "placeName")
     private String name;
-    @Column(name="placeLatitude")
-    private double latitude;
-    @Column(name="placeLongitude")
-    private double longitude;
-    @Column(name="placeDescription")
+    @Column(name = "placeLatitude")
+    private Double latitude;
+    @Column(name = "placeLongitude")
+    private Double longitude;
+    @Column(name = "placeDescription")
     private String description;
-    @Column(name="rarity")
+    @Column(name = "rarity")
     private Integer rarity;
     @Column(name = "placeImage")
     private String image;
-
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    @Column(name = "placeCoinPrize")
+    private String coinPrize = null;
+    @Column(name = "owner")
+    private Integer owner;
+    private String createdAt;
+    private String modifiedAt;
 
     public PlaceModel() {
     }
 
-    public PlaceModel(Integer id, String name, double latitude, double longitude, String description, Integer rarity, String image, Timestamp createdAt, Timestamp modifiedAt) {
+    public PlaceModel(Integer id, String name, Double latitude, Double longitude, String description, Integer rarity, String image, String coinPrize, Integer owner, String createdAt, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.latitude = latitude;
@@ -47,11 +49,10 @@ allocationSize=1,
         this.description = description;
         this.rarity = rarity;
         this.image = image;
+        this.coinPrize = coinPrize;
+        this.owner = owner;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public PlaceModel(double latitude, double longitude) {
     }
 
     public Integer getId() {
@@ -70,19 +71,19 @@ allocationSize=1,
         this.name = name;
     }
 
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public void setLatitude(Double latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 
@@ -110,19 +111,35 @@ allocationSize=1,
         this.image = image;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCoinPrize() {
+        return coinPrize;
+    }
+
+    public void setCoinPrize(String coinPrize) {
+        this.coinPrize = coinPrize;
+    }
+
+    public Integer getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Integer owner) {
+        this.owner = owner;
+    }
+
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

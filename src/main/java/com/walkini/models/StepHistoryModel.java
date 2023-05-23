@@ -2,7 +2,6 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
 
 
 
@@ -10,36 +9,38 @@ import java.sql.Timestamp;
 public class StepHistoryModel {
     @Id
     @SequenceGenerator(
-allocationSize=1,
-            name="step_history_id_sequence",
+            allocationSize = 1,
+            name = "step_history_id_sequence",
             sequenceName = "step_history_id_sequence")
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "step_history_id_sequence"
     )
-    @Column(name="id")
+    @Column(name = "id")
     private Integer id;
-
-    @Column(name="user")
+    @Column(name = "user")
     private String user;
-    @Column(name="description")
-    private String description;
-    @Column(name="stepsValue")
+    @Column(name = "log")
+    private String log;
+    @Column(name = "stepsValue")
     private String stepsValue;
-    @Column(name="stepsDay")
+    @Column(name = "stepsDay")
     private String stepsDay;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    @Column(name = "status")
+    private String status= StepsHistoryStatus.waiting.toString();
+    private String createdAt;
+    private String modifiedAt;
 
     public StepHistoryModel() {
     }
 
-    public StepHistoryModel(Integer id, String user, String description, String stepsValue, String stepsDay, Timestamp createdAt, Timestamp modifiedAt) {
+    public StepHistoryModel(Integer id, String user, String log, String stepsValue, String stepsDay, String status, String createdAt, String modifiedAt) {
         this.id = id;
         this.user = user;
-        this.description = description;
+        this.log = log;
         this.stepsValue = stepsValue;
         this.stepsDay = stepsDay;
+        this.status = status;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
@@ -60,12 +61,12 @@ allocationSize=1,
         this.user = user;
     }
 
-    public String getDescription() {
-        return description;
+    public String getLog() {
+        return log;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setLog(String log) {
+        this.log = log;
     }
 
     public String getStepsValue() {
@@ -84,19 +85,28 @@ allocationSize=1,
         this.stepsDay = stepsDay;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }
+

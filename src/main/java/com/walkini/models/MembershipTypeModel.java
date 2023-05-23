@@ -2,15 +2,14 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
  
 
 @Entity(name = "membership")
 public class MembershipTypeModel {
     @Id
     @SequenceGenerator(
-    allocationSize=1,
-            name="membership_type_id_sequence",
+            allocationSize = 1,
+            name = "membership_type_id_sequence",
             sequenceName = "membership_type_id_sequence")
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
@@ -19,41 +18,35 @@ public class MembershipTypeModel {
 
 
     @Column
-    private  Integer id;
-    @Column(name="membershipName")
+    private Integer id;
+    @Column(name = "membershipName")
     private String name;
-    @Column(name="membershipDescription")
+    @Column(name = "membershipDescription")
     private String description;
-    @Column(name="membershipColor")
-    private String color;
-    @Column(name="membershipPrice")
-    private String price;
-    @Column(name="membershipBadge")
-    private String badge;
-    @Column(name="membershipDurationInSeconds")
-    private Long membershipDurationInSeconds;
+    @Column(name = "membershipPrice")
+    private Double price;
+    @Column(name = "membershipBadge")
+    private Integer badge;
+    @Column(name = "membershipDurationInMonths")
+    private Integer membershipDurationInMonths;
     @Column(name = "modifiedAttribute")
-    private  Integer modifiedAttribute;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    private Integer modifiedAttribute;
+    private String createdAt;
+    private String modifiedAt;
 
     public MembershipTypeModel() {
     }
 
-    public MembershipTypeModel(Integer id, String name, String description, String color, String price, String badge, Long membershipDurationInSeconds, Integer modifiedAttribute, Timestamp createdAt, Timestamp modifiedAt) {
+    public MembershipTypeModel(Integer id, String name, String description, Double price, Integer badge, Integer membershipDurationInMonths, Integer modifiedAttribute, String createdAt, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
-        this.color = color;
         this.price = price;
         this.badge = badge;
-        this.membershipDurationInSeconds = membershipDurationInSeconds;
+        this.membershipDurationInMonths = membershipDurationInMonths;
         this.modifiedAttribute = modifiedAttribute;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public MembershipTypeModel(String name) {
     }
 
     public Integer getId() {
@@ -80,36 +73,28 @@ public class MembershipTypeModel {
         this.description = description;
     }
 
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
-    public String getBadge() {
+    public Integer getBadge() {
         return badge;
     }
 
-    public void setBadge(String badge) {
+    public void setBadge(Integer badge) {
         this.badge = badge;
     }
 
-    public Long getMembershipDurationInSeconds() {
-        return membershipDurationInSeconds;
+    public Integer getMembershipDurationInMonths() {
+        return membershipDurationInMonths;
     }
 
-    public void setMembershipDurationInSeconds(Long membershipDurationInSeconds) {
-        this.membershipDurationInSeconds = membershipDurationInSeconds;
+    public void setMembershipDurationInMonths(Integer membershipDurationInMonths) {
+        this.membershipDurationInMonths = membershipDurationInMonths;
     }
 
     public Integer getModifiedAttribute() {
@@ -120,19 +105,19 @@ public class MembershipTypeModel {
         this.modifiedAttribute = modifiedAttribute;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

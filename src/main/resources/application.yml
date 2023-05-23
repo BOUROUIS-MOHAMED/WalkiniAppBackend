@@ -1,6 +1,7 @@
 server:
   port: 5000
 
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5332/walkini
@@ -16,4 +17,31 @@ spring:
     show-sql: true
   main:
     web-application-type: servlet
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 30MB
+      max-request-size: 100MB
+
+  mail:
+    host: smtp.gmail.com
+    username: moha.amine.bou@gmail.com
+    port: 587
+    password: cwpjcnwzyuuzyoxb
+    test-connection: true
+    tls: true
+    properties:
+      mail:
+        debug: true
+        transport:
+          protocol: smtp
+        smtp:
+          port: 587
+          host: smtp.gmail.com
+          auth: true
+          starttls:
+            enable: true
+
+
 

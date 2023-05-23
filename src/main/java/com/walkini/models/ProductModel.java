@@ -2,12 +2,6 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
-
-
-import java.util.Objects;
-
-
 
 @Entity(name = "product")
 public class ProductModel {
@@ -23,17 +17,19 @@ allocationSize=1,
 
     @Column(name="id")
     private Integer id;
-    @Column(name="productName")
+    @Column(name="name")
     private String name;
-    @Column(name="productCoinPrice")
-    private String coinPrice;
-    @Column(name="productEmeraldPrice")
-    private String emeraldPrice;
-    @Column(name="productImage")
+    @Column(name="description")
+    private String description;
+    @Column(name="coinPrice")
+    private Double coinPrice;
+    @Column(name="emeraldPrice")
+    private Double emeraldPrice;
+    @Column(name="image")
     private String image;
-    @Column(name="productCategory")
+    @Column(name="category")
     private String category;
-    @Column(name = "productScore")
+    @Column(name = "Score")
     private String score;
     @Column(name="productIsOnSale")
     private Boolean isOnSale;
@@ -49,21 +45,19 @@ allocationSize=1,
     private Integer leftQuantity;
     @Column(name="productIsDeliverable")
     private Boolean isDeliverable;
-    @Column(name="productDeliveryPrice")
-    private String deliveryPrice;
-    @Column(name = "ownerId")
+    @Column(name = "owner")
     private Integer owner;
     @Column(name="isAvailable")
     private Boolean isAvailable;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    @Column(name="canUseCoupon")
+    private Boolean canUseCoupon;
+    private String createdAt;
+    private String modifiedAt;
 
-    public ProductModel() {
-    }
-
-    public ProductModel(Integer id, String name,Boolean isAvailable, String coinPrice, String emeraldPrice, String image, String category, String score, Boolean isOnSale, Long saleLimitTimeInSeconds, Double salePercent, Integer rarity, Integer initialQuantity, Integer leftQuantity, Boolean isDeliverable, String deliveryPrice, Integer owner, Timestamp createdAt, Timestamp modifiedAt) {
+    public ProductModel(Integer id, String name, String description, Double coinPrice, Double emeraldPrice, String image, String category, String score, Boolean isOnSale, Long saleLimitTimeInSeconds, Double salePercent, Integer rarity, Integer initialQuantity, Integer leftQuantity, Boolean isDeliverable, Integer owner, Boolean isAvailable, Boolean canUseCoupon, String createdAt, String modifiedAt) {
         this.id = id;
         this.name = name;
+        this.description = description;
         this.coinPrice = coinPrice;
         this.emeraldPrice = emeraldPrice;
         this.image = image;
@@ -76,22 +70,14 @@ allocationSize=1,
         this.initialQuantity = initialQuantity;
         this.leftQuantity = leftQuantity;
         this.isDeliverable = isDeliverable;
-        this.deliveryPrice = deliveryPrice;
         this.owner = owner;
-        this.isAvailable=isAvailable;
+        this.isAvailable = isAvailable;
+        this.canUseCoupon = canUseCoupon;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public ProductModel(String name) {
-    }
-
-    public Boolean getAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(Boolean available) {
-        isAvailable = available;
+    public ProductModel() {
     }
 
     public Integer getId() {
@@ -110,19 +96,27 @@ allocationSize=1,
         this.name = name;
     }
 
-    public String getCoinPrice() {
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getCoinPrice() {
         return coinPrice;
     }
 
-    public void setCoinPrice(String coinPrice) {
+    public void setCoinPrice(Double coinPrice) {
         this.coinPrice = coinPrice;
     }
 
-    public String getEmeraldPrice() {
+    public Double getEmeraldPrice() {
         return emeraldPrice;
     }
 
-    public void setEmeraldPrice(String emeraldPrice) {
+    public void setEmeraldPrice(Double emeraldPrice) {
         this.emeraldPrice = emeraldPrice;
     }
 
@@ -206,14 +200,6 @@ allocationSize=1,
         isDeliverable = deliverable;
     }
 
-    public String getDeliveryPrice() {
-        return deliveryPrice;
-    }
-
-    public void setDeliveryPrice(String deliveryPrice) {
-        this.deliveryPrice = deliveryPrice;
-    }
-
     public Integer getOwner() {
         return owner;
     }
@@ -222,56 +208,35 @@ allocationSize=1,
         this.owner = owner;
     }
 
-    public Timestamp getCreatedAt() {
+    public Boolean getAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(Boolean available) {
+        isAvailable = available;
+    }
+
+    public Boolean getCanUseCoupon() {
+        return canUseCoupon;
+    }
+
+    public void setCanUseCoupon(Boolean canUseCoupon) {
+        this.canUseCoupon = canUseCoupon;
+    }
+
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ProductModel that = (ProductModel) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(coinPrice, that.coinPrice) && Objects.equals(emeraldPrice, that.emeraldPrice) && Objects.equals(image, that.image) && Objects.equals(category, that.category) && Objects.equals(score, that.score) && Objects.equals(isOnSale, that.isOnSale) && Objects.equals(saleLimitTimeInSeconds, that.saleLimitTimeInSeconds) && Objects.equals(salePercent, that.salePercent) && Objects.equals(rarity, that.rarity) && Objects.equals(initialQuantity, that.initialQuantity) && Objects.equals(leftQuantity, that.leftQuantity) && Objects.equals(isDeliverable, that.isDeliverable) && Objects.equals(deliveryPrice, that.deliveryPrice) && Objects.equals(owner, that.owner) && Objects.equals(createdAt, that.createdAt) && Objects.equals(modifiedAt, that.modifiedAt);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, coinPrice, emeraldPrice, image, category, score, isOnSale, saleLimitTimeInSeconds, salePercent, rarity, initialQuantity, leftQuantity, isDeliverable, deliveryPrice, owner, createdAt, modifiedAt);
-    }
-
-    @Override
-    public String toString() {
-        return "ProductModel{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", coinPrice='" + coinPrice + '\'' +
-                ", emeraldPrice='" + emeraldPrice + '\'' +
-                ", image='" + image + '\'' +
-                ", category='" + category + '\'' +
-                ", score='" + score + '\'' +
-                ", isOnSale=" + isOnSale +
-                ", saleLimitTime=" + saleLimitTimeInSeconds +
-                ", salePercent=" + salePercent +
-                ", rarity=" + rarity +
-                ", initialQuantity=" + initialQuantity +
-                ", leftQuantity=" + leftQuantity +
-                ", isDeliverable=" + isDeliverable +
-                ", deliveryPrice='" + deliveryPrice + '\'' +
-                ", owner=" + owner +
-                ", createdAt=" + createdAt +
-                ", modifiedAt=" + modifiedAt +
-                '}';
     }
 }

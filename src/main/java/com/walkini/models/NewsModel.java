@@ -2,7 +2,6 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
 
 
 
@@ -20,7 +19,6 @@ allocationSize=1,
     )
     @Column(name="id")
     private Integer id;
-
     @Column(name="newsTitle")
     private String title;
     @Column(name="newsDescription")
@@ -35,15 +33,19 @@ allocationSize=1,
     private String priority;
     @Column(name="newsIsSponsored")
     private Boolean sponsored;
+    @Column(name="newsIsInfo")
+    private Boolean newsIsInfo;
+    @Column(name="newsIsFilteredByCountry")
+    private Boolean newsIsFilteredByCountry;
     @Column(name="Newsaction")
     private Integer action;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    private String createdAt;
+    private String modifiedAt;
 
     public NewsModel() {
     }
 
-    public NewsModel(Integer id, String title, String description, String newsImage, String country, String color, String priority, Boolean sponsored, Integer action, Timestamp createdAt, Timestamp modifiedAt) {
+    public NewsModel(Integer id, String title, String description, String newsImage, String country, String color, String priority, Boolean sponsored, Boolean newsIsInfo, Boolean newsIsFilteredByCountry, Integer action, String createdAt, String modifiedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -52,12 +54,11 @@ allocationSize=1,
         this.color = color;
         this.priority = priority;
         this.sponsored = sponsored;
+        this.newsIsInfo = newsIsInfo;
+        this.newsIsFilteredByCountry = newsIsFilteredByCountry;
         this.action = action;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public NewsModel(String title) {
     }
 
     public Integer getId() {
@@ -124,6 +125,22 @@ allocationSize=1,
         this.sponsored = sponsored;
     }
 
+    public Boolean getNewsIsInfo() {
+        return newsIsInfo;
+    }
+
+    public void setNewsIsInfo(Boolean newsIsInfo) {
+        this.newsIsInfo = newsIsInfo;
+    }
+
+    public Boolean getNewsIsFilteredByCountry() {
+        return newsIsFilteredByCountry;
+    }
+
+    public void setNewsIsFilteredByCountry(Boolean newsIsFilteredByCountry) {
+        this.newsIsFilteredByCountry = newsIsFilteredByCountry;
+    }
+
     public Integer getAction() {
         return action;
     }
@@ -132,19 +149,19 @@ allocationSize=1,
         this.action = action;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

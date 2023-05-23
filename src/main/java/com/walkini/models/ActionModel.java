@@ -2,7 +2,7 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
+
 
 import java.util.Objects;
 
@@ -30,13 +30,13 @@ allocationSize=1,
     @Column(name="actionRoute")
     private String route;
 
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    private String createdAt;
+    private String modifiedAt;
 
     public ActionModel() {
     }
 
-    public ActionModel(Integer id, String name, String route, Timestamp createdAt, Timestamp modifiedAt) {
+    public ActionModel(Integer id, String name, String route, String createdAt, String modifiedAt) {
         this.id = id;
         this.name = name;
         this.route = route;
@@ -71,19 +71,19 @@ allocationSize=1,
         this.route = route;
     }
 
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 

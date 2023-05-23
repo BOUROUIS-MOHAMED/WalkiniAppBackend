@@ -1,10 +1,10 @@
 package com.walkini.repositories;
 
-import com.walkini.models.ShopHistory;
+import com.walkini.models.ShopHistoryModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ShopHistoryRepository
-        extends JpaRepository<ShopHistory,Integer> {
+        extends JpaRepository<ShopHistoryModel,Integer> {
 
 
 }

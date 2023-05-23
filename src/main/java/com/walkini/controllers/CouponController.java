@@ -9,7 +9,6 @@ import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,14 +25,13 @@ public class CouponController {
     }
 
 
-    record CreationRequest(Integer couponName, Integer couponOwner, Boolean couponForAllProducts, Boolean couponForBox, Integer couponReductionPercent, String couponQuantity, Integer couponLeftQuantity, Long couponAvailableDuration, Boolean couponAvailable,Timestamp createdAt) {
+    record CreationRequest(Integer id, String couponName, Integer couponOwner, Double couponReductionPercent, Integer couponQuantity, Integer couponLeftQuantity, Long couponAvailableDurationInSeconds, Boolean couponAvailable, Boolean couponOnlyForOwner, Boolean couponForBox, String createdAt, String modifiedAt){}
+    record UpdateRequest(Integer id, String couponName, Integer couponOwner, Double couponReductionPercent, Integer couponQuantity, Integer couponLeftQuantity, Long couponAvailableDurationInSeconds, Boolean couponAvailable, Boolean couponOnlyForOwner, Boolean couponForBox, String createdAt, String modifiedAt) {
     }
-    record UpdateRequest(Integer id, Integer couponName, Integer couponOwner, Boolean couponForAllProducts, Boolean couponForBox, Integer couponReductionPercent, String couponQuantity, Integer couponLeftQuantity, Long couponAvailableDuration, Boolean couponAvailable, Timestamp createdAt, Timestamp modifiedAt) {
-    }
-    Response response = new Response();
+    ResponseModel response = new ResponseModel();
 
     @GetMapping("/useCouponInProduct")
-    public Response useCouponInProduct() {
+    public ResponseModel useCouponInProduct() {
         return response;
     }
 
@@ -41,122 +39,121 @@ public class CouponController {
     public List<CouponModel> getAllCoupon() {
         return repository.findAll();
     }
-    @GetMapping("/getCoupon{couponId}")
-    public Response getBox(@RequestParam String couponId) {
-        int id = Integer.parseInt(couponId);
 
-        if (repository.existsById(id)) {
-            response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("coupon founded");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
-            response.setObject(repository.findById(id));
-
-        } else {
-            response.setErrorType(ErrorResponseType.NoDataFound);
-            response.setMessage("coupon unfounded");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
-        }
-        return response;
-
-
-    }
-    @GetMapping("/getCouponByOwner{Id}")
-    public Response getCouponByOwner(@RequestParam String Id) {
-        int id = Integer.parseInt(Id);
-        if (profileController.checkUserExist(Id)){
+    @GetMapping("/getById/{id}")
+    public ResponseModel getById(@PathVariable Integer id) {
+        Optional<CouponModel> model=repository.findById(id);
+        if(model.isPresent()){
+            response.setMessage("Exist");
 
             response.setErrorType(ErrorResponseType.Nothing);
-            response.setMessage("coupon for user founded");
-            response.setErrorCode(20000);
+            response.setReturnedBoolean(true);
+            response.setObject(model);
+            response.setErrorCode("20000");
             response.setThereIsAnError(false);
-            response.setObject(repository.findBycouponOwnerEquals(id));
-        }else{
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
+        }else {
+            response.setMessage("unfounded");
             response.setErrorType(ErrorResponseType.NoDataFound);
-            response.setMessage("coupon for user not founded");
-            response.setErrorCode(40000);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-
-
-
-
-
-
-
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
-
-
     }
 
     @PostMapping("/createCoupon")
-    public Response createBox(@RequestBody CreationRequest request )  {
+    public ResponseModel createBox(@RequestBody CreationRequest request )  {
 
-        ExampleMatcher matching = ExampleMatcher.matching()
-                .withMatcher("couponName", ExampleMatcher.GenericPropertyMatchers.ignoreCase());
-        Example<CouponModel> example = Example.<CouponModel>of(new CouponModel(request.couponName()), matching);
-        boolean exists = repository.exists(example);
-        if(exists){
-            CouponModel coupon = new CouponModel();
-          coupon.setCouponAvailable(request.couponAvailable());
-          coupon.setCouponForBox(request.couponForBox());
-          coupon.setCouponName(request.couponName());
-          coupon.setCouponOwner(request.couponOwner());
-          coupon.setCouponQuantity(request.couponQuantity());
-          coupon.setCreatedAt(request.createdAt());
-          coupon.setCouponAvailableDuration(request.couponAvailableDuration());
-          coupon.setCouponAvailable(request.couponAvailable());
-          coupon.setCouponLeftQuantity(request.couponLeftQuantity());
-          coupon.setCouponReductionPercent(request.couponReductionPercent());
+       List<CouponModel> couponModels=repository.findBycouponName(request.couponName());
+        if(couponModels.isEmpty()){
+          CouponModel coupon = new CouponModel();
+        coupon.setCouponOnlyForOwner(request.couponOnlyForOwner);
+        coupon.setModifiedAt(request.modifiedAt());
+        coupon.setCreatedAt(request.createdAt());
+        coupon.setCouponReductionPercent(request.couponReductionPercent());
+        coupon.setCouponAvailableDurationInSeconds(request.couponAvailableDurationInSeconds());
+        coupon.setCouponForBox(request.couponForBox());
+        coupon.setCouponOwner(request.couponOwner());
+        coupon.setCouponLeftQuantity(request.couponLeftQuantity());
+        coupon.setCouponOnlyForOwner(request.couponOnlyForOwner());
+        coupon.setCouponName(request.couponName());
+        coupon.setCouponQuantity(request.couponQuantity());
 
-            //ban
-            //message
             repository.save(coupon);
             response.setMessage("coupon Added Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
+            response.setObject(coupon);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("coupon already exist");
-            response.setErrorCode(40000);
+            response.setErrorType(ErrorResponseType.DataAlreadyExist);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
             response.setThereIsAnError(true);
-            response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }
 
 
     @PutMapping("/updateCoupon")
-    public Response updateCoupon(@RequestBody UpdateRequest request) {
-        CouponModel coupon = new CouponModel();
+    public ResponseModel updateCoupon(@RequestBody UpdateRequest request) {
+
         Optional<CouponModel> couponModel = repository.findById(request.id());
         if (couponModel.isPresent()){
-            coupon.setCouponAvailable(request.couponAvailable());
-            coupon.setCouponForBox(request.couponForBox());
-            coupon.setCouponName(request.couponName());
-            coupon.setCouponOwner(request.couponOwner());
-            coupon.setCouponQuantity(request.couponQuantity());
-            coupon.setCreatedAt(request.createdAt());
-            coupon.setCouponAvailableDuration(request.couponAvailableDuration());
-            coupon.setCouponAvailable(request.couponAvailable());
-            coupon.setCouponLeftQuantity(request.couponLeftQuantity());
-            coupon.setCouponReductionPercent(request.couponReductionPercent());
+            CouponModel coupon = couponModel.get();
+            coupon.setCouponOnlyForOwner(request.couponOnlyForOwner);
             coupon.setModifiedAt(request.modifiedAt());
-
-            //ban
-            //message
+            coupon.setCreatedAt(request.createdAt());
+            coupon.setCouponReductionPercent(request.couponReductionPercent());
+            coupon.setCouponAvailableDurationInSeconds(request.couponAvailableDurationInSeconds());
+            coupon.setCouponForBox(request.couponForBox());
+            coupon.setCouponOwner(request.couponOwner());
+            coupon.setCouponLeftQuantity(request.couponLeftQuantity());
+            coupon.setCouponOnlyForOwner(request.couponOnlyForOwner());
+            coupon.setCouponName(request.couponName());
+            coupon.setCouponQuantity(request.couponQuantity());
             repository.save(coupon);
             response.setMessage("coupon information updated Successfully");
-            response.setErrorCode(20000);
-            response.setThereIsAnError(false);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(true);
             response.setObject(coupon);
+            response.setErrorCode("20000");
+            response.setThereIsAnError(false);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }else {
             response.setMessage("coupon unfounded");
-            response.setErrorCode(40000);
-            response.setThereIsAnError(true);
             response.setErrorType(ErrorResponseType.Nothing);
+            response.setReturnedBoolean(false);
+            response.setObject(null);
+            response.setErrorCode("40000");
+            response.setThereIsAnError(true);
+            response.setReturnedInteger(null);
+            response.setReturnedList(null);
+            response.setReturnedString(null);
+            response.setReturnedMultipartFile(null);
         }
         return response;
     }

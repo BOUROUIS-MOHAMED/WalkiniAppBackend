@@ -4,5 +4,11 @@ public enum ErrorResponseType {
 
     Nothing,
     NoDataFound,
-    DataCorrupted
+    DataCorrupted,
+    DataAlreadyExist,
+    UnknownError,
+    DataTypeError,
+    StatusError,
+    ProductQuantityError,
+    NotEnoughCredit
 }

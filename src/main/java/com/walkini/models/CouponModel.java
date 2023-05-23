@@ -2,7 +2,6 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
  
 
 
@@ -21,46 +20,42 @@ public class CouponModel {
     @Column(name="id")
     private Integer id;
     @Column(name="couponName")
-    private Integer couponName;
+    private String couponName;
     @Column(name="couponOwner")
     private Integer couponOwner;
-    @Column(name="couponForAllProducts")
-    private Boolean couponForAllProducts;
-    @Column(name="couponForAllBox")
-    private Boolean couponForBox;
     @Column(name="couponReductionPercent")
-    private Integer couponReductionPercent;
+    private Double couponReductionPercent;
     @Column(name="couponQuantity")
-    private String couponQuantity;
+    private Integer couponQuantity;
     @Column(name="couponLeftQuantity")
     private Integer couponLeftQuantity;
     @Column(name="couponAvailableDurationInSeconds")
     private Long couponAvailableDurationInSeconds;
     @Column(name="couponAvailable")
     private Boolean couponAvailable;
-
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    @Column(name="couponOnlyForOwner")
+    private Boolean couponOnlyForOwner=false;
+    @Column(name="couponForBox")
+    private Boolean couponForBox;
+    private String createdAt;
+    private String modifiedAt;
 
     public CouponModel() {
     }
 
-    public CouponModel(Integer id, Integer couponName, Integer couponOwner, Boolean couponForAllProducts, Boolean couponForBox, Integer couponReductionPercent, String couponQuantity, Integer couponLeftQuantity, Long couponAvailableDurationInSeconds, Boolean couponAvailable, Timestamp createdAt, Timestamp modifiedAt) {
+    public CouponModel(Integer id, String couponName, Integer couponOwner, Double couponReductionPercent, Integer couponQuantity, Integer couponLeftQuantity, Long couponAvailableDurationInSeconds, Boolean couponAvailable, Boolean couponOnlyForOwner, Boolean couponForBox, String createdAt, String modifiedAt) {
         this.id = id;
         this.couponName = couponName;
         this.couponOwner = couponOwner;
-        this.couponForAllProducts = couponForAllProducts;
-        this.couponForBox = couponForBox;
         this.couponReductionPercent = couponReductionPercent;
         this.couponQuantity = couponQuantity;
         this.couponLeftQuantity = couponLeftQuantity;
         this.couponAvailableDurationInSeconds = couponAvailableDurationInSeconds;
         this.couponAvailable = couponAvailable;
+        this.couponOnlyForOwner = couponOnlyForOwner;
+        this.couponForBox = couponForBox;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public CouponModel(Integer integer) {
     }
 
     public Integer getId() {
@@ -71,11 +66,11 @@ public class CouponModel {
         this.id = id;
     }
 
-    public Integer getCouponName() {
+    public String getCouponName() {
         return couponName;
     }
 
-    public void setCouponName(Integer couponName) {
+    public void setCouponName(String couponName) {
         this.couponName = couponName;
     }
 
@@ -87,35 +82,19 @@ public class CouponModel {
         this.couponOwner = couponOwner;
     }
 
-    public Boolean getCouponForAllProducts() {
-        return couponForAllProducts;
-    }
-
-    public void setCouponForAllProducts(Boolean couponForAllProducts) {
-        this.couponForAllProducts = couponForAllProducts;
-    }
-
-    public Boolean getCouponForBox() {
-        return couponForBox;
-    }
-
-    public void setCouponForBox(Boolean couponForBox) {
-        this.couponForBox = couponForBox;
-    }
-
-    public Integer getCouponReductionPercent() {
+    public Double getCouponReductionPercent() {
         return couponReductionPercent;
     }
 
-    public void setCouponReductionPercent(Integer couponReductionPercent) {
+    public void setCouponReductionPercent(Double couponReductionPercent) {
         this.couponReductionPercent = couponReductionPercent;
     }
 
-    public String getCouponQuantity() {
+    public Integer getCouponQuantity() {
         return couponQuantity;
     }
 
-    public void setCouponQuantity(String couponQuantity) {
+    public void setCouponQuantity(Integer couponQuantity) {
         this.couponQuantity = couponQuantity;
     }
 
@@ -131,7 +110,7 @@ public class CouponModel {
         return couponAvailableDurationInSeconds;
     }
 
-    public void setCouponAvailableDuration(Long couponAvailableDurationInSeconds) {
+    public void setCouponAvailableDurationInSeconds(Long couponAvailableDurationInSeconds) {
         this.couponAvailableDurationInSeconds = couponAvailableDurationInSeconds;
     }
 
@@ -143,19 +122,35 @@ public class CouponModel {
         this.couponAvailable = couponAvailable;
     }
 
-    public Timestamp getCreatedAt() {
+    public Boolean getCouponOnlyForOwner() {
+        return couponOnlyForOwner;
+    }
+
+    public void setCouponOnlyForOwner(Boolean couponOnlyForOwner) {
+        this.couponOnlyForOwner = couponOnlyForOwner;
+    }
+
+    public Boolean getCouponForBox() {
+        return couponForBox;
+    }
+
+    public void setCouponForBox(Boolean couponForBox) {
+        this.couponForBox = couponForBox;
+    }
+
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }

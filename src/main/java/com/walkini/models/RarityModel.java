@@ -2,48 +2,41 @@ package com.walkini.models;
 
 import jakarta.persistence.*;
 
-import java.sql.Timestamp;
-
 
 @Entity(name = "rarityModel")
 public class RarityModel {
     @Id
     @SequenceGenerator(
-allocationSize=1,
-            name="rarity_id_sequence",
+            allocationSize = 1,
+            name = "rarity_id_sequence",
             sequenceName = "rarity_id_sequence")
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
             generator = "rarity_id_sequence"
     )
 
-    @Column(name="id")
+    @Column(name = "id")
     private Integer id;
-    @Column(name="Name")
-    private String Name;
-    @Column(name="rarityColor")
+    @Column(name = "name")
+    private String name;
+    @Column(name = "rarityColor")
     private String rarityColor;
-    @Column(name="rarityPercent")
-    private String rarityPercent;
-    @Column(name="rarityLevel")
-    private String rarityLevel;
-    private Timestamp createdAt;
-    private Timestamp modifiedAt;
+    @Column(name = "rarityPercent")
+    private Double rarityPercent;
+
+    private String createdAt;
+    private String modifiedAt;
 
     public RarityModel() {
     }
 
-    public RarityModel(Integer id, String name, String rarityColor, String rarityPercent, String rarityLevel, Timestamp createdAt, Timestamp modifiedAt) {
+    public RarityModel(Integer id, String name, String rarityColor, Double rarityPercent, String createdAt, String modifiedAt) {
         this.id = id;
-        Name = name;
+        name = name;
         this.rarityColor = rarityColor;
         this.rarityPercent = rarityPercent;
-        this.rarityLevel = rarityLevel;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-
-    public RarityModel(String name) {
     }
 
     public Integer getId() {
@@ -55,11 +48,11 @@ allocationSize=1,
     }
 
     public String getName() {
-        return Name;
+        return name;
     }
 
     public void setName(String name) {
-        Name = name;
+        name = name;
     }
 
     public String getRarityColor() {
@@ -70,35 +63,27 @@ allocationSize=1,
         this.rarityColor = rarityColor;
     }
 
-    public String getRarityPercent() {
+    public Double getRarityPercent() {
         return rarityPercent;
     }
 
-    public void setRarityPercent(String rarityPercent) {
+    public void setRarityPercent(Double rarityPercent) {
         this.rarityPercent = rarityPercent;
     }
 
-    public String getRarityLevel() {
-        return rarityLevel;
-    }
-
-    public void setRarityLevel(String rarityLevel) {
-        this.rarityLevel = rarityLevel;
-    }
-
-    public Timestamp getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public Timestamp getModifiedAt() {
+    public String getModifiedAt() {
         return modifiedAt;
     }
 
-    public void setModifiedAt(Timestamp modifiedAt) {
+    public void setModifiedAt(String modifiedAt) {
         this.modifiedAt = modifiedAt;
     }
 }
